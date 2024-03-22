@@ -20,6 +20,7 @@ import { Label } from "../label/label";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Checkbox } from "../ui/checkbox";
+import { motion } from "framer-motion";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,6 +33,7 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState(false);
   const { push } = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -45,24 +47,31 @@ export default function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { email, password } = values;
     setIsLoading(true);
-    try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-        callbackUrl: "/",
-      });
-      if (!res?.error) {
-        setIsLoading(false);
-        form.reset;
-        push("/");
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
+    setToast(false);
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+      callbackUrl: "/",
+    });
+    if (!res?.error) {
       setIsLoading(false);
+      form.reset;
+      push("/");
+    } else {
+      setIsLoading(false);
+      setToast(true);
+      setTimeout(() => {
+        setToast(false);
+      }, 6000);
     }
   }
+
+  const variants = {
+    open: { opacity: 1, y: [200, 100, 0] },
+    closed: { opacity: 0, y: 200 },
+  };
+
   return (
     <>
       <Form {...form}>
