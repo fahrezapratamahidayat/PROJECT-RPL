@@ -1,9 +1,14 @@
+import CardProjects from "@/components/card/cardProjects";
+import Navbar from "@/components/navigation/navbar";
+import Sidebar from "@/components/navigation/sidebar";
+
 import { FilePlus } from "lucide-react";
-import CardProjects from "../card/cardProjects";
 
 export default function ProjectsPage() {
   return (
     <>
+      <Navbar />
+      <Sidebar />
       <div className="lg:pl-[15.5rem] py-7">
         <div className="flex items-center gap-5 space-x-4">
           <div className="flex items-center ">

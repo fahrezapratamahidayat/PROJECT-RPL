@@ -20,7 +20,6 @@ import { Label } from "../label/label";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Checkbox } from "../ui/checkbox";
-import { motion } from "framer-motion";
 
 const formSchema = z.object({
   email: z.string().email({

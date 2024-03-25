@@ -1,34 +1,21 @@
 "use client";
 import { Button } from "../ui/button";
-import {
-  Calendar,
-  EllipsisVertical,
-  GripVertical,
-  Loader2,
-  Plus,
-} from "lucide-react";
-import { Checkbox } from "../ui/checkbox";
+import { GripVertical, Loader2 } from "lucide-react";
+import DialogFormTasks from "../form/dialogFormTasks";
+import ListTasks from "../schedule/listTask";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import LabelInputContainer from "../layouts/labelInputContainer";
 import { useSession } from "next-auth/react";
 import { Textarea } from "../ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { DialogFooter } from "../ui/dialog";
+import axios from "axios";
 
 export default function CardTasks() {
-  const { data: session, status }: { data: any; status: string } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  // const handlePriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   console.log(e.target.value);
-  // }
+  const { data: session, status }: { data: any; status: string } = useSession();
+  const [tasksList, setTasksList] = useState([]);
 
   const handleTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,7 +38,21 @@ export default function CardTasks() {
       },
     });
     setIsLoading(false);
+    snapshotData();
   };
+
+  const snapshotData = async () => {
+    if (!session) return;
+    const respone = await axios.get(
+      `http://localhost:3000/api/userdata?id=${session?.user?.id}`
+    );
+    setTasksList(respone.data.users);
+  };
+
+  useEffect(() => {
+    snapshotData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
   return (
     <>
       <div className="flex flex-col border px-5 py-2 rounded-lg w-1/2">
@@ -63,84 +64,70 @@ export default function CardTasks() {
             </p>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-1" variant={"outline"}>
-                  <Plus />
-                  Task
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader className="border-b pb-4">
-                  <DialogTitle className="">Create Tasks</DialogTitle>
-                  {/* <DialogDescription>
-                    dhahdahd
-                  </DialogDescription> */}
-                </DialogHeader>
-                <form className="space-y-4" onSubmit={handleTask}>
-                  <div className="flex flex-col space-y-2">
+            <DialogFormTasks>
+              <form className="space-y-4" onSubmit={handleTask}>
+                <div className="flex flex-col space-y-2">
+                  <LabelInputContainer>
+                    <Label htmlFor="taskName" className="text-right">
+                      Task Name
+                    </Label>
+                    <Input
+                      id="taskName"
+                      name="taskName"
+                      className=""
+                      type="text"
+                      required
+                    />
+                  </LabelInputContainer>
+                  <LabelInputContainer>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      placeholder="Type your message here."
+                      id="description"
+                      name="description"
+                    />
+                  </LabelInputContainer>
+                  <div className="flex items-center justify-between w-full gap-5">
                     <LabelInputContainer>
-                      <Label htmlFor="taskName" className="text-right">
-                        Task Name
+                      <Label htmlFor="dueDate" className="text-right">
+                        Due Date
                       </Label>
                       <Input
-                        id="taskName"
-                        name="taskName"
+                        id="dueDate"
+                        name="dueDate"
                         className=""
-                        type="text"
+                        type="datetime-local"
                         required
                       />
                     </LabelInputContainer>
                     <LabelInputContainer>
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        placeholder="Type your message here."
-                        id="description"
-                        name="description"
+                      <Label htmlFor="dueTime" className="text-right">
+                        Due Time
+                      </Label>
+                      <Input
+                        id="dueTime"
+                        name="dueTime"
+                        className=""
+                        type="datetime-local"
+                        required
                       />
                     </LabelInputContainer>
-                    <div className="flex items-center justify-between w-full gap-5">
-                      <LabelInputContainer>
-                        <Label htmlFor="dueDate" className="text-right">
-                          Due Date
-                        </Label>
-                        <Input
-                          id="dueDate"
-                          name="dueDate"
-                          className=""
-                          type="datetime-local"
-                          required
-                        />
-                      </LabelInputContainer>
-                      <LabelInputContainer>
-                        <Label htmlFor="dueTime" className="text-right">
-                          Due Time
-                        </Label>
-                        <Input
-                          id="dueTime"
-                          name="dueTime"
-                          className=""
-                          type="datetime-local"
-                          required
-                        />
-                      </LabelInputContainer>
-                    </div>
                   </div>
-                  <DialogFooter>
-                    {isLoading ? (
-                      <Button className="w-full" disabled>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Please wait
-                      </Button>
-                    ) : (
-                      <Button className="w-full" type="submit">
-                        Create
-                      </Button>
-                    )}
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+                </div>
+                <DialogFooter>
+                  {isLoading ? (
+                    <Button className="w-full" disabled>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </Button>
+                  ) : (
+                    <Button className="w-full" type="submit">
+                      Create
+                    </Button>
+                  )}
+                </DialogFooter>
+              </form>
+            </DialogFormTasks>
             <Button className="px-2" variant={"ghost"}>
               <GripVertical className="text-muted-foreground" />
               <span className="sr-only">Sort</span>
@@ -158,28 +145,44 @@ export default function CardTasks() {
             0 completed
           </Button>
         </div>
-        <div className="flex flex-col space-y-4 mt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-stretch">
-              <Checkbox className="mt-0.5" />
-              <div className="flex flex-col ml-4">
-                <h2 className="text-sm font-semibold">
-                  UI/UX Design Landing page
-                </h2>
-                <div className="flex items-center mt-1 gap-1.5">
-                  <Calendar className="text-muted-foreground w-4 h-4" />
-                  <span className="text-sm text-muted-foreground">
-                    30 Aug 2024 - 10:30AM
-                  </span>
+        {tasksList && tasksList.length > 0 ? (
+          <>
+            {tasksList.map(
+              (
+                task: {
+                  title: string;
+                  description: string;
+                  created_At: string;
+                  deadline: string;
+                },
+                index: number
+              ) => (
+                <ListTasks
+                  key={index}
+                  taskName={task.title}
+                  description={task.description}
+                  created_At={task.created_At}
+                  deadline={task.deadline}
+                />
+              )
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col space-y-4 mt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-stretch">
+                <div className="flex flex-col ml-4">
+                  <h2 className="text-sm font-semibold">
+                    kamu belum mempunyai tasks yang harus dikerjakan
+                  </h2>
+                  <div className="flex items-center mt-1 gap-1.5">
+                    <span className="text-sm text-muted-foreground"></span>
+                  </div>
                 </div>
               </div>
             </div>
-            <Button className="px-2" variant={"ghost"}>
-              <EllipsisVertical />
-              <span className="sr-only">More options</span>
-            </Button>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

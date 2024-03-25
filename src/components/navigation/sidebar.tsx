@@ -14,14 +14,8 @@ export default function Sidebar() {
               </Link>
             </li>
             <li className="flex items-center gap-5 px-4 py-3 hover:bg-secondary rounded-md text-sm font-semibold cursor-pointer">
-              <ClipboardList className="h-5 w-5" />
-              <Link href="/" className="text-sm">
-                My Task
-              </Link>
-            </li>
-            <li className="flex items-center gap-5 px-4 py-3 hover:bg-secondary rounded-md text-sm font-semibold cursor-pointer">
               <StickyNote className="h-5 w-5" />
-              <Link href="/" className="text-sm">
+              <Link href="/projects" className="text-sm">
                 Projects
               </Link>
             </li>
