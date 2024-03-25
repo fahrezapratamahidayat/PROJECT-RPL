@@ -1,8 +1,10 @@
 "use client";
 
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function Navbar() {
+  const { data: session, status }: { data: any; status: string } = useSession();
   return (
     <>
       <div className="sticky max-w-full w-full items-center justify-between font-semibold lg:flex px-10 py-4 border">
@@ -25,10 +27,21 @@ export default function Navbar() {
         <div className="flex items-center w-max">
           <ul className="inline-flex items-center gap-5 space-x-4">
             <li className="text-sm">
-              <Link href="/auth/register">Sign up</Link>
-            </li>
-            <li className="text-sm">
-              <Link href="/auth/login">Sign in</Link>
+              {status && status === "authenticated" ? (
+                <button
+                  className=" text-sky-500 text-semibold text-sm"
+                  onClick={() => signOut()}
+                >
+                  Logout
+                </button>
+              ) : (
+                <button
+                  className=" text-blue-500 text-sm"
+                  onClick={() => signIn()}
+                >
+                  Login
+                </button>
+              )}
             </li>
           </ul>
         </div>

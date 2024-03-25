@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import NextAuth from "next-auth/next";
 import { LoginUsers } from "@/services/auth/services";
+import jwt from "jsonwebtoken";
 
 const authOptions: NextAuthOptions = {
   session: {
@@ -38,7 +39,7 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, user, profile }: any) {
       if (account?.provider === "credentials") {
-        if(token)
+        token.id = user.id;
         token.email = user.email;
         token.fullname = user.fullname;
         token.idp = "credentials";
@@ -47,6 +48,9 @@ const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }: any) {
+      if ("id" in token) {
+        session.user.id = token.id
+      }
       if ("email" in token) {
         session.user.email = token.email;
       }
@@ -56,9 +60,18 @@ const authOptions: NextAuthOptions = {
       if ("idp" in token) {
         session.user.idp = token.idp;
       }
-      if("createdAt" in token) {
+      if ("createdAt" in token) {
         session.user.createdAt = token.createdAt
       }
+
+      const createToken = jwt.sign(
+        token,
+        process.env.NEXT_AUTH_SECRET as string, {
+        "algorithm": "HS256",
+      }
+      )
+      session.accessToken = createToken;
+
       return session;
     },
   },
