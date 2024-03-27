@@ -53,6 +53,8 @@ export default function CardTasks() {
     snapshotData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
+
+  console.log(tasksList);
   return (
     <>
       <div className="flex flex-col border px-5 py-2 rounded-lg w-1/2">

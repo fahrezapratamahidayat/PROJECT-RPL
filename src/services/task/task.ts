@@ -1,5 +1,5 @@
 import app from "@/lib/firebase/init";
-import { arrayUnion, doc, getDoc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, getDoc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 
 const firestore = getFirestore(app);
@@ -52,7 +52,10 @@ export async function addTaskUser(taskData: {
         if (!taskData.status_task) {
             taskData.status_task = "In Progress";
         }
-        await setDoc(usersRef, { tasks: userTasks } , { merge: true });
+        if(!taskData.id) {
+            taskData.id = taskId;
+        }
+        await setDoc(usersRef, { tasks: userTasks }, { merge: true });
 
         return {
             status: true,
@@ -68,6 +71,127 @@ export async function addTaskUser(taskData: {
         };
     }
 }
+
+function deleteTaskFromArray(taskId: string, userData: any) {
+    const updatedTasks = userData.tasks.filter((task: any) => task.id !== taskId);
+    return {
+      ...userData,
+      tasks: updatedTasks,
+    };
+  }
+
+  export async function deleteTask(id: string, taskId: string) {
+    const userRef = doc(firestore, "users", id);
+    const snapshotUser = await getDoc(userRef);
+  
+    if (!snapshotUser.exists()) {
+      return {
+        status: false,
+        statusCode: 404,
+        message: "User Tidak Ditemukan",
+      };
+    }
+
+    if(!taskId) {
+        return {
+            status: false,
+            statusCode: 404,
+            message: "Tasks tidak ditemukan ditemukan",
+        }
+    }
+    const userData = snapshotUser.data();
+    try {
+        const updatedUserData = deleteTaskFromArray(taskId, userData);
+
+        await updateDoc(userRef, {
+          tasks: updatedUserData.tasks,
+          updated_At: new Date(),
+        });
+
+        return {
+          status: true,
+          statusCode: 200,
+          message: "Task deleted successfully",
+        };
+
+    } catch (error) {
+        return {
+          status: false,
+          statusCode: 400,
+          message: "Failed to delete task",
+        };
+    }
+  }
+
+ export async function updateTask(id: string, taskId: string, task: any) {
+    const userRef = doc(firestore, "users", id);
+    const snapshotUser = await getDoc(userRef);
+  
+    if (!snapshotUser.exists()) {
+      return {
+        status: false,
+        statusCode: 404,
+        message: "User Tidak Ditemukan",
+      };
+    }
+  
+    const userData = snapshotUser.data();
+    const updatedTasks = userData.tasks.map((currentTask: any) => {
+      if (currentTask.id === taskId) {
+        return { ...currentTask, ...task };
+      }
+      return currentTask;
+    });
+  
+    await updateDoc(userRef, {
+      tasks: updatedTasks,
+    });
+  
+    return {
+      status: true,
+      statusCode: 200,
+      message: "Task updated successfully",
+    };
+  }
+
+// export async function deleteTasks(id: string, taskId: string) {
+//     try {
+//         const userRef = doc(firestore, "users", id);
+//         const snapshotUser = await getDoc(userRef);
+//         if (!snapshotUser.exists()) {
+//             return {
+//                 status: false,
+//                 statusCode: 404,
+//                 message: "User Tidak Ditemukan"
+//             }
+//         }
+        
+//         const user = snapshotUser.data();
+//         const isTaskInArray = user.tasks.some((task: any) => task.id === taskId);
+//         if(!isTaskInArray) {
+//             return {
+//                 status: false,
+//                 statusCode: 404,
+//                 message: "Task Tidak Ditemukan"
+//             }
+//         }
+//         console.log(user)
+//         await updateDoc(userRef, {
+//             tasks: arrayRemove({
+//                 id: taskId,
+//             })
+//         })
+
+//         return {
+//             status: true,
+//             statusCode: 200,
+//             message: "Task deleted successfully"
+//         }
+
+//     } catch (error) {
+
+//     }
+// }
 
 // Function to add task to user
 // export async function addTaskUser(taskData:any, id:any) {
