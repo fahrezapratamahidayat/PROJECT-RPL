@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import LabelInputContainer from "../layouts/labelInputContainer";
 import { useSession } from "next-auth/react";
 import { Textarea } from "../ui/textarea";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { DialogFooter } from "../ui/dialog";
 import axios from "axios";
+import { ComboboxDropdownMenu } from "../dropdown/comboxDropdown";
 
 export default function CardTasks() {
   const [isLoading, setIsLoading] = useState(false);
@@ -43,21 +44,18 @@ export default function CardTasks() {
 
   const handleDeleteTask = async (taskId: string) => {
     if (!session) return;
-    const snapshot = await fetch("/api/deletetask", {
+    const snapshot = await fetch("/api/deltask", {
       method: "POST",
       body: JSON.stringify({
-        id: session?.user?.id,
+        userId: session?.user?.id,
         taskId: taskId,
       }),
       headers: {
         "Content-Type": "application/json",
       },
     });
-    const respone = await snapshot.json();
-    if (respone.status === true) {
+    if (snapshot.status === 200) {
       snapshotData();
-    } else {
-      alert("failed to delete task");
     }
   };
 
@@ -178,32 +176,36 @@ export default function CardTasks() {
                 },
                 index: number
               ) => (
-                <ListTasks
-                  key={index}
-                  taskName={task.title}
-                  description={task.description}
-                  created_At={task.created_At}
-                  deadline={task.deadline}
-                  onClick={() => handleDeleteTask(task.id)}
-                />
+                <Suspense key={index} fallback={<h1>Loading</h1>}>
+                  <ListTasks
+                    key={index}
+                    taskName={task.title}
+                    description={task.description}
+                    created_At={task.created_At}
+                    deadline={task.deadline}
+                    onClickDelete={() => handleDeleteTask(task.id)}
+                  />
+                </Suspense>
               )
             )}
           </>
         ) : (
-          <div className="flex flex-col space-y-4 mt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-stretch">
-                <div className="flex flex-col ml-4">
-                  <h2 className="text-sm font-semibold">
-                    kamu belum mempunyai tasks yang harus dikerjakan
-                  </h2>
-                  <div className="flex items-center mt-1 gap-1.5">
-                    <span className="text-sm text-muted-foreground"></span>
+          <Suspense fallback={<h1>Loading</h1>}>
+            <div className="flex flex-col space-y-4 mt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-stretch">
+                  <div className="flex flex-col ml-4">
+                    <h2 className="text-sm font-semibold">
+                      kamu belum mempunyai tasks yang harus dikerjakan
+                    </h2>
+                    <div className="flex items-center mt-1 gap-1.5">
+                      <span className="text-sm text-muted-foreground"></span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Suspense>
         )}
       </div>
     </>

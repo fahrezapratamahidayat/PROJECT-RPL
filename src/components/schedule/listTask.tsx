@@ -1,18 +1,20 @@
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { Calendar, EllipsisVertical } from "lucide-react";
 import { Button } from "../ui/button";
+import { Children } from "react";
+import { ComboboxDropdownMenu } from "../dropdown/comboxDropdown";
 
 export default function ListTasks({
   taskName,
   deadline,
   created_At,
-  onClick
+  onClickDelete,
 }: {
   taskName: string;
   description: string;
   deadline: string;
   created_At: string;
-  onClick : () => void
+  onClickDelete: () => void;
 }) {
   return (
     <>
@@ -29,14 +31,7 @@ export default function ListTasks({
               </div>
             </div>
           </div>
-          <Button
-            className="px-2"
-            variant={"ghost"}
-            onClick={onClick}
-          >
-            <EllipsisVertical />
-            <span className="sr-only">More options</span>
-          </Button>
+          <ComboboxDropdownMenu onClickDelete={onClickDelete} />
         </div>
       </div>
     </>
