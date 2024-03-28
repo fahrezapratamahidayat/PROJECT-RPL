@@ -41,6 +41,26 @@ export default function CardTasks() {
     snapshotData();
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    if (!session) return;
+    const snapshot = await fetch("/api/deletetask", {
+      method: "POST",
+      body: JSON.stringify({
+        id: session?.user?.id,
+        taskId: taskId,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const respone = await snapshot.json();
+    if (respone.status === true) {
+      snapshotData();
+    } else {
+      alert("failed to delete task");
+    }
+  };
+
   const snapshotData = async () => {
     if (!session) return;
     const respone = await axios.get(
@@ -53,8 +73,6 @@ export default function CardTasks() {
     snapshotData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
-
-  console.log(tasksList);
   return (
     <>
       <div className="flex flex-col border px-5 py-2 rounded-lg w-1/2">
@@ -152,6 +170,7 @@ export default function CardTasks() {
             {tasksList.map(
               (
                 task: {
+                  id: string;
                   title: string;
                   description: string;
                   created_At: string;
@@ -165,6 +184,7 @@ export default function CardTasks() {
                   description={task.description}
                   created_At={task.created_At}
                   deadline={task.deadline}
+                  onClick={() => handleDeleteTask(task.id)}
                 />
               )
             )}

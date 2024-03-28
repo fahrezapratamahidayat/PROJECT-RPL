@@ -73,57 +73,14 @@ export async function addTaskUser(taskData: {
 }
 
 function deleteTaskFromArray(taskId: string, userData: any) {
-    const updatedTasks = userData.tasks.filter((task: any) => task.id !== taskId);
-    return {
-      ...userData,
-      tasks: updatedTasks,
-    };
-  }
+  const updatedTasks = userData.tasks.filter((task: any) => task.id !== taskId);
+  return {
+    ...userData,
+    tasks: updatedTasks,
+  };
+}
 
-  export async function deleteTask(id: string, taskId: string) {
-    const userRef = doc(firestore, "users", id);
-    const snapshotUser = await getDoc(userRef);
-  
-    if (!snapshotUser.exists()) {
-      return {
-        status: false,
-        statusCode: 404,
-        message: "User Tidak Ditemukan",
-      };
-    }
-
-    if(!taskId) {
-        return {
-            status: false,
-            statusCode: 404,
-            message: "Tasks tidak ditemukan ditemukan",
-        }
-    }
-    const userData = snapshotUser.data();
-    try {
-        const updatedUserData = deleteTaskFromArray(taskId, userData);
-
-        await updateDoc(userRef, {
-          tasks: updatedUserData.tasks,
-          updated_At: new Date(),
-        });
-
-        return {
-          status: true,
-          statusCode: 200,
-          message: "Task deleted successfully",
-        };
-
-    } catch (error) {
-        return {
-          status: false,
-          statusCode: 400,
-          message: "Failed to delete task",
-        };
-    }
-  }
-
- export async function updateTask(id: string, taskId: string, task: any) {
+ export async function deleteTask(id: string, taskId: string) {
     const userRef = doc(firestore, "users", id);
     const snapshotUser = await getDoc(userRef);
   
@@ -136,22 +93,67 @@ function deleteTaskFromArray(taskId: string, userData: any) {
     }
   
     const userData = snapshotUser.data();
-    const updatedTasks = userData.tasks.map((currentTask: any) => {
-      if (currentTask.id === taskId) {
-        return { ...currentTask, ...task };
-      }
-      return currentTask;
-    });
+    const updatedUserData = deleteTaskFromArray(taskId, userData);
   
     await updateDoc(userRef, {
-      tasks: updatedTasks,
+      tasks: updatedUserData.tasks,
     });
   
     return {
       status: true,
       statusCode: 200,
-      message: "Task updated successfully",
+      message: "Task deleted successfully",
     };
+  }
+
+ export async function updateTask(id: string, taskId: string, task: any) {
+   try {
+      const userRef = doc(firestore, "users", id);
+      const snapshotUser = await getDoc(userRef);
+    
+      if (!snapshotUser.exists()) {
+        return {
+          status: false,
+          statusCode: 404,
+          message: "User Tidak Ditemukan",
+        };
+      }
+      
+      const userData = snapshotUser.data();
+      const isTaskInFields = userData.tasks.some((taskInFields: {id: string}) => taskInFields.id === taskId);
+
+      if(!isTaskInFields) {
+        return {
+          status: false,
+          statusCode: 404,
+          message: "Task not found",
+        }
+      } else {
+        const updatedTasks = userData.tasks.map((currentTask: any) => {
+          if (currentTask.id === taskId) {
+            return { ...currentTask, ...task };
+          }
+          return currentTask;
+        });
+      
+        await updateDoc(userRef, {
+          tasks: updatedTasks,
+          update_At: new Date(),
+        });
+      
+        return {
+          status: true,
+          statusCode: 200,
+          message: "Task updated successfully",
+        };
+      }
+    } catch (error) {
+      return {
+        status: true,
+        statusCode: 200,
+        message: "Failed to delete task",
+      };
+    }
   }
 
 // export async function deleteTasks(id: string, taskId: string) {
