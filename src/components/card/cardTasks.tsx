@@ -62,7 +62,7 @@ export default function CardTasks() {
   const snapshotData = async () => {
     if (!session) return;
     const respone = await axios.get(
-      `http://localhost:3000/api/userdata?id=${session?.user?.id}`
+      `/api/userdata?id=${session?.user?.id}`
     );
     setTasksList(respone.data.users);
   };
