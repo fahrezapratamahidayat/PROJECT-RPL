@@ -11,7 +11,7 @@ export async function randomId() {
 
 export async function addTaskUser(taskData: {
     userId: string;
-    id: string;
+    taskId: string;
     owner: string;
     title: string;
     description: string;
@@ -52,8 +52,8 @@ export async function addTaskUser(taskData: {
         if (!taskData.status_task) {
             taskData.status_task = "In Progress";
         }
-        if(!taskData.id) {
-            taskData.id = taskId;
+        if(!taskData.taskId) {
+            taskData.taskId = taskId;
         }
         await setDoc(usersRef, { tasks: userTasks }, { merge: true });
 
@@ -73,7 +73,7 @@ export async function addTaskUser(taskData: {
 }
 
 function deleteTaskFromArray(taskId: string, userData: any) {
-  const updatedTasks = userData.tasks.filter((task: any) => task.id !== taskId);
+  const updatedTasks = userData.tasks.filter((task: any) => task.taskId !== taskId);
   return {
     ...userData,
     tasks: updatedTasks,
@@ -96,7 +96,7 @@ function deleteTaskFromArray(taskId: string, userData: any) {
     }
   
     const userData = snapshotUser.data();
-    const isTaskInField = userData.tasks.some((task: any) => task.id === data.taskId);
+    const isTaskInField = userData.tasks.some((task: {taskId:string}) => task.taskId === data.taskId);
     if (!isTaskInField){
       return {
         status: false,
@@ -104,6 +104,7 @@ function deleteTaskFromArray(taskId: string, userData: any) {
         message: "Task Tidak Ditemukan",
       }
     }
+    console.log(isTaskInField)
     const updatedUserData = deleteTaskFromArray(data.taskId, userData);
     await updateDoc(userRef, {
       tasks: updatedUserData.tasks,
@@ -116,8 +117,12 @@ function deleteTaskFromArray(taskId: string, userData: any) {
     };
   }
 
-  export async function updateTask(id: string, taskId: string, task: any) {
-    const userRef = doc(firestore, "users", id);
+  export async function updateTask(data: {
+    userId: string;
+    taskId: string;
+    task: any;
+  }) {
+    const userRef = doc(firestore, "users", data.userId);
     const snapshotUser = await getDoc(userRef);
   
     if (!snapshotUser.exists()) {
@@ -130,12 +135,12 @@ function deleteTaskFromArray(taskId: string, userData: any) {
   
     const userData = snapshotUser.data();
     const updatedTasks = userData.tasks.map((currentTask: any) => {
-      if (currentTask.id === taskId) {
-        return { ...currentTask, ...task };
+      if (currentTask.id === data.taskId) {
+        return { ...currentTask, ...data.task };
       }
       return currentTask;
     });
-  
+    
     await updateDoc(userRef, {
       tasks: updatedTasks,
     });

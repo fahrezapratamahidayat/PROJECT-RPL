@@ -11,12 +11,14 @@ import { Textarea } from "../ui/textarea";
 import { Suspense, useEffect, useState } from "react";
 import { DialogFooter } from "../ui/dialog";
 import axios from "axios";
-import { ComboboxDropdownMenu } from "../dropdown/comboxDropdown";
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 export default function CardTasks() {
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, status }: { data: any; status: string } = useSession();
   const [tasksList, setTasksList] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,7 +41,11 @@ export default function CardTasks() {
       },
     });
     setIsLoading(false);
-    snapshotData();
+    if (response.ok) {
+      setModalOpen(false);
+      snapshotData();
+      setModalOpen(false);
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -61,9 +67,7 @@ export default function CardTasks() {
 
   const snapshotData = async () => {
     if (!session) return;
-    const respone = await axios.get(
-      `/api/userdata?id=${session?.user?.id}`
-    );
+    const respone = await axios.get(`/api/userdata?id=${session?.user?.id}`);
     setTasksList(respone.data.users);
   };
 
@@ -73,16 +77,11 @@ export default function CardTasks() {
   }, [session]);
   return (
     <>
-      <div className="flex flex-col border px-5 py-2 rounded-lg w-1/2">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <h2 className="text-base font-bold">Task Priorities</h2>
-            <p className="text-sm text-muted-foreground">
-              My Task Sorted By priority
-            </p>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <DialogFormTasks>
+      <CardTaskWrapper>
+        <CardTaskContainer className="flex items-center justify-between">
+          <CardTaskHeader />
+          <DialogContainer className="flex items-center justify-between gap-2">
+            <DialogFormTasks isOpen={modalOpen} setIsOpen={setModalOpen}>
               <form className="space-y-4" onSubmit={handleTask}>
                 <div className="flex flex-col space-y-2">
                   <LabelInputContainer>
@@ -100,6 +99,7 @@ export default function CardTasks() {
                   <LabelInputContainer>
                     <Label htmlFor="description">Description</Label>
                     <Textarea
+                      className="min-h-[40px] resize-none"
                       placeholder="Type your message here."
                       id="description"
                       name="description"
@@ -150,8 +150,8 @@ export default function CardTasks() {
               <GripVertical className="text-muted-foreground" />
               <span className="sr-only">Sort</span>
             </Button>
-          </div>
-        </div>
+          </DialogContainer>
+        </CardTaskContainer>
         <div className="flex items-center gap-2">
           <Button className="mt-3" variant={"outline"}>
             4 Upcoming
@@ -168,7 +168,7 @@ export default function CardTasks() {
             {tasksList.map(
               (
                 task: {
-                  id: string;
+                  taskId: string;
                   title: string;
                   description: string;
                   created_At: string;
@@ -183,7 +183,7 @@ export default function CardTasks() {
                     description={task.description}
                     created_At={task.created_At}
                     deadline={task.deadline}
-                    onClickDelete={() => handleDeleteTask(task.id)}
+                    onClickDelete={() => handleDeleteTask(task.taskId)}
                   />
                 </Suspense>
               )
@@ -207,7 +207,55 @@ export default function CardTasks() {
             </div>
           </Suspense>
         )}
-      </div>
+      </CardTaskWrapper>
     </>
   );
 }
+
+const CardTaskWrapper = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col border px-5 py-2 rounded-lg w-1/2", className)}
+    {...props}
+  />
+));
+CardTaskWrapper.displayName = "CardTaskWrapper";
+
+const CardTaskContainer = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center justify-between", className)}
+    {...props}
+  />
+));
+CardTaskContainer.displayName = "CardTaskContainer";
+
+const CardTaskHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div className="flex flex-col" ref={ref} {...props}>
+    <h2 className="text-base font-bold">Task Priorities</h2>
+    <p className="text-sm text-muted-foreground">My Task Sorted By priority</p>
+  </div>
+));
+
+CardTaskHeader.displayName = "CardTaskHeader";
+
+const DialogContainer = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center justify-between gap-2", className)}
+    {...props}
+  />
+));
+DialogContainer.displayName = "DialogContainer";
