@@ -1,6 +1,6 @@
 import { addDoc, collection, getDocs, getFirestore, query, where } from "firebase/firestore";
 import app from "@/lib/firebase/init";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const firestore = getFirestore(app);
 

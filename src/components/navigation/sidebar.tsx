@@ -16,9 +16,9 @@ export default function Sidebar() {
         <nav className="flex flex-col px-7 py-7 overflow-y-auto overflow-sidebar h-[calc(100vh-5rem)] transition-all ease-in-out">
           <div className="leading-6 space-y-3">
             <Link
-              href="/"
+              href="/home"
               className={`${
-                pathname === "/" ? "bg-secondary" : ""
+                pathname === "/home" ? "bg-secondary" : ""
               } flex items-center px-4 py-3 gap-5 hover:bg-secondary rounded-md font-semibold cursor-pointer`}
             >
               <Home className="h-5 w-5" />

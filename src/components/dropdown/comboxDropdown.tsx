@@ -12,8 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function ComboboxDropdownMenu({ onClickDelete }: { onClickDelete: () => void }) {
-  const [label, setLabel] = React.useState("feature");
+export function ComboboxDropdownMenu({
+  onClickDelete,
+}: {
+  onClickDelete: () => void;
+}) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -26,17 +29,11 @@ export function ComboboxDropdownMenu({ onClickDelete }: { onClickDelete: () => v
       <DropdownMenuContent align="end" className="w-[160px]">
         {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            className=""
-            
-          >
+          <DropdownMenuItem className="">
             <Pencil className="mr-2 h-4 w-4" />
             Edit Task
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-red-600"
-            onClick={onClickDelete}
-          >
+          <DropdownMenuItem className="text-red-600" onClick={onClickDelete}>
             <Trash className="mr-2 h-4 w-4" />
             Delete Task
           </DropdownMenuItem>
