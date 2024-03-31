@@ -4,7 +4,8 @@
  * @type {string[]}
  */
 export const publicRoutes: string[] = [
-  "/auth/new-verification"
+  "/auth/new-verification",
+  "/"
 ];
 
 /**
@@ -13,7 +14,6 @@ export const publicRoutes: string[] = [
  * @type {string[]}
  */
 export const authRoutes: string[] = [
-  "/",
   "/auth/login",
   "/auth/register",
   "/auth/error",
