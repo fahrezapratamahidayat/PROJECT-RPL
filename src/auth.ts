@@ -49,9 +49,8 @@ export const {
         },
     },
     pages: {
-        error: '/',
-        signIn: '/',
-        signOut: '/',
+        signIn: "/auth/login",
+        error: "/auth/error",
     },
     ...authConfig
 })

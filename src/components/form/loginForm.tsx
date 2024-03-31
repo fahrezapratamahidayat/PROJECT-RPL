@@ -56,7 +56,7 @@ export default function LoginForm() {
     if (!res?.error) {
       setIsLoading(false);
       form.reset;
-      push("/");
+      push("/home");
     } else {
       setIsLoading(false);
       setToast(true);
