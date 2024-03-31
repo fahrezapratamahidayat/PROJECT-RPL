@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "../ui/button";
 import { GripVertical, Loader2 } from "lucide-react";
-import DialogFormTasks from "../form/dialogFormTasks";
+import DialogFormTasks from "../form/dialogFormAddTasks";
 import ListTasks from "../schedule/listTask";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,12 +13,20 @@ import { DialogFooter } from "../ui/dialog";
 import axios from "axios";
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import AlertDeleteTask from "../alert/alertdelete";
+import { TasksData } from "@/types";
+import DialogFormEditTasks from "../form/dialogFormEditTasks";
 
 export default function CardTasks() {
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, status }: { data: any; status: string } = useSession();
   const [tasksList, setTasksList] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [formDelActive, setformDelActive] = useState(false);
+  const [formEditActive, setFormEditActive] = useState(false);
+  const [deleteTaskData, setDeleteTaskData] = useState<TasksData>(
+    {} as TasksData
+  );
 
   const handleTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,6 +57,7 @@ export default function CardTasks() {
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    setformDelActive(true);
     if (!session) return;
     const snapshot = await fetch("/api/deltask", {
       method: "POST",
@@ -62,6 +71,7 @@ export default function CardTasks() {
     });
     if (snapshot.status === 200) {
       snapshotData();
+      setformDelActive(false);
     }
   };
 
@@ -77,6 +87,18 @@ export default function CardTasks() {
   }, [session]);
   return (
     <>
+      <AlertDeleteTask
+        isOpen={formDelActive}
+        setIsOpen={setformDelActive}
+        data={setDeleteTaskData}
+        onClickDelete={() => handleDeleteTask(deleteTaskData.taskId)}
+      />
+      <DialogFormEditTasks
+        isOpen={formEditActive}
+        setIsOpen={setFormEditActive}
+      >
+        <h1>test</h1>
+      </DialogFormEditTasks>
       <CardTaskWrapper>
         <CardTaskContainer className="flex items-center justify-between">
           <CardTaskHeader />
@@ -165,29 +187,26 @@ export default function CardTasks() {
         </div>
         {tasksList && tasksList.length > 0 ? (
           <>
-            {tasksList.map(
-              (
-                task: {
-                  taskId: string;
-                  title: string;
-                  description: string;
-                  created_At: string;
-                  deadline: string;
-                },
-                index: number
-              ) => (
-                <Suspense key={index} fallback={<h1>Loading</h1>}>
-                  <ListTasks
-                    key={index}
-                    taskName={task.title}
-                    description={task.description}
-                    created_At={task.created_At}
-                    deadline={task.deadline}
-                    onClickDelete={() => handleDeleteTask(task.taskId)}
-                  />
-                </Suspense>
-              )
-            )}
+            {tasksList.map((task: TasksData, index: number) => (
+              <Suspense key={index} fallback={<h1>Loading</h1>}>
+                <ListTasks
+                  key={index}
+                  taskName={task.title}
+                  description={task.description}
+                  created_At={task.created_at}
+                  deadline={task.deadline}
+                  showDialogEdit={() => {
+                    setFormEditActive(!formEditActive);
+                  }}
+                  showAlertDelete={() => {
+                    setformDelActive(!formDelActive);
+                    setDeleteTaskData({
+                      ...task,
+                    });
+                  }}
+                />
+              </Suspense>
+            ))}
           </>
         ) : (
           <Suspense fallback={<h1>Loading</h1>}>

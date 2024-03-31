@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { LoginUsers } from "./services/auth/services";
 import GoogleProvider from "next-auth/providers/google"
-
+import { UserData } from "./types";
 export default {
     providers: [
         CredentialsProvider({

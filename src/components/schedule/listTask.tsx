@@ -8,13 +8,15 @@ export default function ListTasks({
   taskName,
   deadline,
   created_At,
-  onClickDelete,
+  showAlertDelete,
+  showDialogEdit,
 }: {
   taskName: string;
   description: string;
   deadline: string;
   created_At: string;
-  onClickDelete: () => void;
+  showAlertDelete: () => void;
+  showDialogEdit: () => void;
 }) {
   return (
     <>
@@ -31,7 +33,10 @@ export default function ListTasks({
               </div>
             </div>
           </div>
-          <ComboboxDropdownMenu onClickDelete={onClickDelete} />
+          <ComboboxDropdownMenu
+            showAlertDelete={showAlertDelete}
+            showDialogEdit={showDialogEdit}
+          />
         </div>
       </div>
     </>

@@ -9,10 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export default function DialogFormTasks({
+export default function DialogFormEditTasks({
   children,
   isOpen,
-  setIsOpen
+  setIsOpen,
 }: {
   children: React.ReactNode;
   isOpen: boolean;
@@ -20,13 +20,7 @@ export default function DialogFormTasks({
 }) {
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={setIsOpen} >
-        <DialogTrigger asChild>
-          <Button className="flex items-center gap-1" variant={"outline"}>
-            <Plus />
-            Task
-          </Button>
-        </DialogTrigger>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="">Create Tasks</DialogTitle>

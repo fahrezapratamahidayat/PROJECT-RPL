@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ComboboxDropdownMenu({
-  onClickDelete,
+  showDialogEdit,
+  showAlertDelete,
 }: {
-  onClickDelete: () => void;
+  showDialogEdit: () => void;
+  showAlertDelete: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -29,13 +31,13 @@ export function ComboboxDropdownMenu({
       <DropdownMenuContent align="end" className="w-[160px]">
         {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
         <DropdownMenuGroup>
-          <DropdownMenuItem className="">
+          <DropdownMenuItem className="" onClick={showDialogEdit}>
             <Pencil className="mr-2 h-4 w-4" />
             Edit Task
           </DropdownMenuItem>
-          <DropdownMenuItem className="text-red-600" onClick={onClickDelete}>
+          <DropdownMenuItem className="text-red-600" onClick={showAlertDelete}>
             <Trash className="mr-2 h-4 w-4" />
-            Delete Task
+            Delete
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
