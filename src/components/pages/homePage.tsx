@@ -5,7 +5,7 @@ import CardTasks from "../card/cardTasks";
 export default function HomePage() {
   return (
     <>
-      <div className="lg:pl-[15.5rem] py-7 mr-9 flex flex-col gap-4">
+      <main className="lg:pl-[15.5rem] py-7 mr-9 flex flex-col gap-4">
         <div className="border flex flex-col justify-between gap-3 px-5 py-2 rounded-lg w-full">
           <div className="flex flex-col space-y-1">
             <h1 className="text-lg font-bold ">Dashboard</h1>
@@ -40,7 +40,7 @@ export default function HomePage() {
         <div className="w-full flex items-center gap-2">
           <CardTasks />
         </div>
-      </div>
+      </main>
     </>
   );
 }

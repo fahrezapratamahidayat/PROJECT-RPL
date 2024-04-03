@@ -24,22 +24,22 @@ export default function AlertDeleteTask({
   data: any;
   onClickDelete: () => void;
 }) {
-  console.log(data)
   return (
     <>
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Tugas</AlertDialogTitle>
             <AlertDialogDescription>
-              Data Task <span className="font-bold">{data.title}</span> will be
-              deleted.
+              Tugas berikut{" "}
+              <span className="font-bold text-red-500">{data.title}</span> akan
+              dihapus.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction onClick={onClickDelete}>
-              Continue
+              Lanjut
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

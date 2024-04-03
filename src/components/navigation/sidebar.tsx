@@ -34,7 +34,7 @@ export default function Sidebar() {
               <span className="text-sm">Projects</span>
             </Link>
             <Link
-              href="/"
+              href="/chats"
               className={`${
                 pathname === "/chats" ? "bg-secondary" : ""
               } flex items-center px-4 py-3 gap-5 hover:bg-secondary rounded-md font-semibold cursor-pointer`}

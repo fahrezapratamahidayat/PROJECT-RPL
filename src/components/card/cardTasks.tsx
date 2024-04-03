@@ -15,7 +15,6 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import AlertDeleteTask from "../alert/alertdelete";
 import { TasksData } from "@/types";
-import DialogFormEditTasks from "../form/dialogFormEditTasks";
 
 export default function CardTasks() {
   const [isLoading, setIsLoading] = useState(false);
@@ -90,20 +89,88 @@ export default function CardTasks() {
       <AlertDeleteTask
         isOpen={formDelActive}
         setIsOpen={setformDelActive}
-        data={setDeleteTaskData}
+        data={deleteTaskData}
         onClickDelete={() => handleDeleteTask(deleteTaskData.taskId)}
       />
-      <DialogFormEditTasks
+      <DialogFormTasks
         isOpen={formEditActive}
         setIsOpen={setFormEditActive}
+        title="Edit Task"
+        showTrigger={false}
       >
-        <h1>test</h1>
-      </DialogFormEditTasks>
+        <form className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            <LabelInputContainer>
+              <Label htmlFor="taskName" className="text-right">
+                Task Name
+              </Label>
+              <Input
+                id="taskName"
+                name="taskName"
+                className=""
+                type="text"
+                required
+              />
+            </LabelInputContainer>
+            <LabelInputContainer>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                className="min-h-[40px] resize-none"
+                placeholder="Type your message here."
+                id="description"
+                name="description"
+              />
+            </LabelInputContainer>
+            <div className="flex items-center justify-between w-full gap-5">
+              <LabelInputContainer>
+                <Label htmlFor="dueDate" className="text-right">
+                  Due Date
+                </Label>
+                <Input
+                  id="dueDate"
+                  name="dueDate"
+                  className=""
+                  type="datetime-local"
+                  required
+                />
+              </LabelInputContainer>
+              <LabelInputContainer>
+                <Label htmlFor="dueTime" className="text-right">
+                  Due Time
+                </Label>
+                <Input
+                  id="dueTime"
+                  name="dueTime"
+                  className=""
+                  type="datetime-local"
+                  required
+                />
+              </LabelInputContainer>
+            </div>
+          </div>
+          <DialogFooter>
+            {isLoading ? (
+              <Button className="w-full" disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button className="w-full" type="submit">
+                Create
+              </Button>
+            )}
+          </DialogFooter>
+        </form>
+      </DialogFormTasks>
       <CardTaskWrapper>
         <CardTaskContainer className="flex items-center justify-between">
           <CardTaskHeader />
           <DialogContainer className="flex items-center justify-between gap-2">
-            <DialogFormTasks isOpen={modalOpen} setIsOpen={setModalOpen}>
+            <DialogFormTasks
+              isOpen={modalOpen}
+              setIsOpen={setModalOpen}
+              title="Add Task"
+            >
               <form className="space-y-4" onSubmit={handleTask}>
                 <div className="flex flex-col space-y-2">
                   <LabelInputContainer>
@@ -193,7 +260,7 @@ export default function CardTasks() {
                   key={index}
                   taskName={task.title}
                   description={task.description}
-                  created_At={task.created_at}
+                  created_At={task.created_At}
                   deadline={task.deadline}
                   showDialogEdit={() => {
                     setFormEditActive(!formEditActive);
