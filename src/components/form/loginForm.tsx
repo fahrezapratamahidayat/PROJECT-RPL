@@ -141,7 +141,7 @@ export default function LoginForm() {
           className="w-full flex gap-2 items-center justify-center"
           variant="outline"
           onClick={() =>
-            signIn("google", { callbackUrl: "/", redirect: false })
+            signIn("google", { callbackUrl: "/auth/login", redirect: false })
           }
         >
           <svg

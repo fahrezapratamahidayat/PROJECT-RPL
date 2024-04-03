@@ -17,7 +17,7 @@ export default function AuthLayout({
     <>
       <div className="min-h-screen max-w-full px-6 py-10 mx-auto">
         <div className="flex items-center justify-center w-full flex-col">
-          <div className="flex flex-col bg-white rounded-lg shadow-lg drop-shadow-md lg:w-1/3 p-5">
+          <div className="flex flex-col rounded-lg shadow-lg drop-shadow-md lg:w-1/3 p-5">
             <div className="mb-5">
               <h1 className="text-2xl font-bold">{title}</h1>
               <p className="text-muted-foreground mt-1">

@@ -57,3 +57,24 @@ export async function LoginUsers(email: string) {
     }
 }
 
+export async function LoginGoogle(data: {
+    fullname: string,
+    email: string,
+    idp: string,
+}, callBack: Function) {
+    const getUsers = await getDataByField("users", "email", data.email);
+    if (!data.idp) {
+        data.idp = "google"
+    }
+    if (getUsers.length > 0) {
+        return callBack(getUsers[0]);
+    } else {
+        const docRef = await addDoc(collection(firestore, "users"), data);
+        if (docRef) {
+            const docId = docRef.id;
+            console.log(docId)
+            callBack(docId);
+            return callBack(docId);
+        }
+    }
+}

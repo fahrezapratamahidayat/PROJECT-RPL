@@ -1,10 +1,4 @@
-import {
-  CircleUserRound,
-  LifeBuoy,
-  LogOut,
-  Settings,
-  User,
-} from "lucide-react";
+import { LifeBuoy, LogOut, Settings, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,10 +19,17 @@ export function DropdownAvatar() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        {session && session.user.image ? (
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={session && session.user.image} />
+            <AvatarFallback>profile</AvatarFallback>
+          </Avatar>
+        ) : (
+          <Avatar className="h-9 w-9">
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 mr-4 mt-2">
         <DropdownMenuLabel className="flex flex-col">

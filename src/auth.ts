@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import jwt from "jsonwebtoken";
 import authConfig from "@/auth.config";
+import { LoginGoogle } from "./services/auth/services";
 
 export const {
     handlers: { GET, POST },
@@ -11,6 +12,19 @@ export const {
     },
     callbacks: {
         async jwt({ token, account, user, profile }: any) {
+            if (account?.provider === "google") {
+                const data: any = {
+                    fullame: user.name,
+                    email: user.email,
+                    idp: "google",
+                }
+                await LoginGoogle(data, (data: any) => {
+                    token.id = data.id
+                    token.email = data.email
+                    token.fullname = data.fullame
+                    token.idp = data.idp
+                })
+            }
             if (account?.provider === "credentials") {
                 token.id = user.id;
                 token.email = user.email;
@@ -35,6 +49,9 @@ export const {
             }
             if ("createdAt" in token) {
                 session.user.createdAt = token.createdAt
+            }
+            if ("profileUrl" in token) {
+                session.user.profileUrl = token.profileUrl
             }
 
             const createToken = jwt.sign(

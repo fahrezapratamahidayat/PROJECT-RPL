@@ -9,6 +9,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     return NextResponse.json({
         status: users.status,
         message: users.message,
-        users: users.data || [],
+        data: users.data || [],
     });
 }

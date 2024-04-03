@@ -77,7 +77,7 @@ export default function CardTasks() {
   const snapshotData = async () => {
     if (!session) return;
     const respone = await axios.get(`/api/userdata?id=${session?.user?.id}`);
-    setTasksList(respone.data.users);
+    setTasksList(respone.data.data);
   };
 
   useEffect(() => {

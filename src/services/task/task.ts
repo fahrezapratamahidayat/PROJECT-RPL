@@ -104,7 +104,6 @@ function deleteTaskFromArray(taskId: string, userData: any) {
         message: "Task Tidak Ditemukan",
       }
     }
-    console.log(isTaskInField)
     const updatedUserData = deleteTaskFromArray(data.taskId, userData);
     await updateDoc(userRef, {
       tasks: updatedUserData.tasks,
