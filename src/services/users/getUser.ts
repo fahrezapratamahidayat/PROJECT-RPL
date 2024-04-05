@@ -1,7 +1,6 @@
-import app from "@/lib/firebase/init";
+import { firestore } from "@/lib/firebase/init";
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
 
-const firestore = getFirestore(app);
 
 
 export async function getUsers() {
@@ -52,4 +51,15 @@ export async function getUserById(id: string) {
             message: "Something went wrong",
         }
     }
+}
+
+export async function getUserByName(name: string) {
+
+    const q = query(collection(firestore, "users"), where("name", "==", name));
+    const querySnapshot = await getDocs(q);
+    const getData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+    return getData
 }

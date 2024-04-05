@@ -1,8 +1,6 @@
-import app from "@/lib/firebase/init";
+import { firestore } from "@/lib/firebase/init";
 import { arrayRemove, arrayUnion, doc, getDoc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-
-const firestore = getFirestore(app);
 
 
 export async function randomId() {

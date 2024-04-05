@@ -14,15 +14,19 @@ export const {
         async jwt({ token, account, user, profile }: any) {
             if (account?.provider === "google") {
                 const data: any = {
-                    fullame: user.name,
+                    fullname: user.name,
                     email: user.email,
                     idp: "google",
+                    profileUrl: user.image,
+                    created_At: new Date(),
                 }
                 await LoginGoogle(data, (data: any) => {
                     token.id = data.id
                     token.email = data.email
-                    token.fullname = data.fullame
+                    token.fullname = data.fullname
                     token.idp = data.idp
+                    token.createdAt = data.created_At
+                    token.profileUrl = data.profileUrl
                 })
             }
             if (account?.provider === "credentials") {

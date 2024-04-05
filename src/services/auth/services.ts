@@ -1,8 +1,7 @@
 import { addDoc, collection, getDocs, getFirestore, query, where } from "firebase/firestore";
-import app from "@/lib/firebase/init";
 import bcrypt from "bcryptjs";
+import { firestore } from "@/lib/firebase/init";
 
-const firestore = getFirestore(app);
 
 
 export async function getDataByField(collectionName: string, field: string, value: string) {
@@ -61,7 +60,8 @@ export async function LoginGoogle(data: {
     fullname: string,
     email: string,
     idp: string,
-}, callBack: Function) {
+    created_At: Date,
+}, callBack: Function,) {
     const getUsers = await getDataByField("users", "email", data.email);
     if (!data.idp) {
         data.idp = "google"
@@ -72,7 +72,6 @@ export async function LoginGoogle(data: {
         const docRef = await addDoc(collection(firestore, "users"), data);
         if (docRef) {
             const docId = docRef.id;
-            console.log(docId)
             callBack(docId);
             return callBack(docId);
         }
