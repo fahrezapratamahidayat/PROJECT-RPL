@@ -36,11 +36,11 @@ export default function Sidebar() {
             <Link
               href="/chats"
               className={`${
-                pathname === "/chats" ? "bg-secondary" : ""
+                pathname.startsWith("/chats") ? "bg-secondary" : ""
               } flex items-center px-4 py-3 gap-5 hover:bg-secondary rounded-md font-semibold cursor-pointer`}
             >
               <MessageSquareMore className="h-5 w-5" />
-              <span className="text-sm">Chat</span>
+              <span className="text-sm">Chats</span>
             </Link>
             <Link
               href="/"

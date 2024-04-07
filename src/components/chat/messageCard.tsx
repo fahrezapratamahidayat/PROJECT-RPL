@@ -4,17 +4,19 @@ export default function MessageCard({
   message,
   className,
   date,
+  profileUrl
 }: {
   message: string;
   className?: string;
   date?: string;
+  profileUrl: string
 }) {
   return (
     <>
       <div className={`flex ${className} items-start gap-2`}>
         <div className="flex flex-col">
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarImage src={profileUrl || "https://github.com/shadcn.png"} alt="" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </div>

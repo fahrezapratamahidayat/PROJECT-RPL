@@ -28,14 +28,14 @@ import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDGszsrvbieGYaGpAqNPZ3k4_6uy5z3Tf8",
-  authDomain: "project-rpl-e8b62.firebaseapp.com",
-  databaseURL: "https://project-rpl-e8b62-default-rtdb.firebaseio.com",
-  projectId: "project-rpl-e8b62",
-  storageBucket: "project-rpl-e8b62.appspot.com",
-  messagingSenderId: "206872008268",
-  appId: "1:206872008268:web:1b441033685d2c062006e9"
+  apiKey: "AIzaSyDKGlrVJEh8m_3Haz-WGKoy318BpnuQNJs",
+  authDomain: "next-app-rpl.firebaseapp.com",
+  projectId: "next-app-rpl",
+  storageBucket: "next-app-rpl.appspot.com",
+  messagingSenderId: "21858421502",
+  appId: "1:21858421502:web:93e28c3923ae5e2ce733af"
 };
+
 let app;
 if (!getApps().length) {
   app = initializeApp(firebaseConfig);

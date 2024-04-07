@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";;
 import { Loader2 } from "lucide-react";
 import instance from "@/lib/axios/instance";
+import axios from "axios";
 
 const formSchema = z
   .object({
@@ -52,7 +53,7 @@ export default function RegisterForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     const { fullname, email, password } = values;
-    const response = await instance.post("/api/auth/register", {
+    const response = await axios.post("/api/auth/register", {
       fullname,
       email,
       password,
@@ -60,7 +61,7 @@ export default function RegisterForm() {
     if(response.status === 200) {
       form.reset();
       setIsLoading(false)
-      router.push("/login")
+      router.push("/auth/login")
     }else{
       setIsLoading(false)
     }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -24,7 +25,7 @@ export default function Home() {
               </div>
             </div>
             <div className="mx-auto grid max-w-4xl items-start gap-6 sm:max-w-2xl md:gap-12 lg:max-w-5xl">
-              <img
+              <Image
                 alt="Image"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
                 height="310"
@@ -52,7 +53,7 @@ export default function Home() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
-              <img
+              <Image
                 alt="Image"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
                 height="310"
@@ -122,7 +123,7 @@ export default function Home() {
                 Contact Sales
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
                 href="#"
               >
                 Learn more
@@ -173,7 +174,7 @@ export default function Home() {
             <div className="divide-y rounded-lg border">
               <div className="grid w-full grid-cols-3 items-stretch justify-center divide-x md:grid-cols-3">
                 <div className="mx-auto flex w-full items-center justify-center p-4 sm:p-8">
-                  <img
+                  <Image
                     alt="Logo"
                     className="aspect-[2/1] overflow-hidden rounded-lg object-contain object-center"
                     height="70"
@@ -182,7 +183,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="mx-auto flex w-full items-center justify-center p-4 sm:p-8">
-                  <img
+                  <Image
                     alt="Logo"
                     className="aspect-[2/1] overflow-hidden rounded-lg object-contain object-center"
                     height="70"
@@ -191,7 +192,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="mx-auto flex w-full items-center justify-center p-8">
-                  <img
+                  <Image
                     alt="Logo"
                     className="aspect-[2/1] overflow-hidden rounded-lg object-contain object-center"
                     height="70"
@@ -202,7 +203,7 @@ export default function Home() {
               </div>
               <div className="grid w-full grid-cols-3 items-stretch justify-center divide-x md:grid-cols-3">
                 <div className="mx-auto flex w-full items-center justify-center p-4 sm:p-8">
-                  <img
+                  <Image
                     alt="Logo"
                     className="aspect-[2/1] overflow-hidden rounded-lg object-contain object-center"
                     height="70"
@@ -211,7 +212,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="mx-auto flex w-full items-center justify-center p-4 sm:p-8">
-                  <img
+                  <Image
                     alt="Logo"
                     className="aspect-[2/1] overflow-hidden rounded-lg object-contain object-center"
                     height="70"
@@ -220,7 +221,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="mx-auto flex w-full items-center justify-center p-4 sm:p-8">
-                  <img
+                  <Image
                     alt="Logo"
                     className="aspect-[2/1] overflow-hidden rounded-lg object-contain object-center"
                     height="70"
@@ -238,7 +239,7 @@ export default function Home() {
                 Contact Sales
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
                 href="#"
               >
                 Learn more

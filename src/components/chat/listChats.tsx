@@ -5,18 +5,22 @@ import Link from "next/link";
 export default function ListChats({
   showMessage = true,
   data,
+  slug,
 }: {
   showMessage?: boolean;
   data?: any;
+  slug?: string;
 }) {
-  const text: string =
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit.";
   return (
     <>
-      <Link href={`/chat/${data.id}`}>
-        <div className="flex items-centers justify-start gap-5 px-3 py-3 rounded-lg hover:bg-muted">
+      <Link href={`/chats/${data.id}`}>
+        <div
+          className={`${
+            data.id === slug ? "bg-muted" : ""
+          } flex items-centers justify-start gap-5 px-3 py-3 rounded-lg hover:bg-muted`}
+        >
           <Avatar>
-            <AvatarImage src={data.profileUrl} />
+            <AvatarImage src={data.profileUrl || "https://github.com/shadcn.png"} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <div className="">
