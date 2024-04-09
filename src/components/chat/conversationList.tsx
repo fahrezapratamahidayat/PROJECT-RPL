@@ -17,12 +17,18 @@ import {
 import { firestore } from "@/lib/firebase/init";
 import { useSession } from "next-auth/react";
 
-export default function ConverSationList({ slug }: { slug: string }) {
+export default function ConverSationList({
+  slug,
+  className,
+}: {
+  slug: string;
+  className?: string;
+}) {
   const [open, setOpen] = React.useState(false);
   const { data: session } = useSession();
   const [querySearch, setQuerySearch] = React.useState("");
   const [usersList, setUserList] = useState([] as any[]);
-  const [chatrooms, setChatrooms] = useState<any[]>([]); // chatroom pengguna
+  const [chatrooms, setChatrooms] = useState<any[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -89,7 +95,9 @@ export default function ConverSationList({ slug }: { slug: string }) {
 
   return (
     <>
-      <div className="flex flex-col justify-between gap-1 px-5 py-2 rounded-lg w-1/3">
+      <div
+        className={`${className} flex flex-col justify-between gap-1 px-5 py-2 rounded-lg lg:w-1/3 w-full`}
+      >
         <div className="flex flex-items-center justify-center">
           <div className="flex flex-col">
             <h1 className="text-lg font-bold ">Chats</h1>

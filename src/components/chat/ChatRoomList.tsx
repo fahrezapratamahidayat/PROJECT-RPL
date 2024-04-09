@@ -27,7 +27,7 @@ export default function ChatRoomList({
   slug: string;
 }) {
   const [messageInput, setMessageInput] = React.useState<string>("");
-  const { data: session } : { data: any } = useSession();
+  const { data: session }: { data: any } = useSession();
   const [chatrooms, setChatrooms] = useState([] as any);
   const [messages, setMessages] = useState([] as any);
 
@@ -245,17 +245,22 @@ export default function ChatRoomList({
 
   return (
     <>
-      <div className="relative flex flex-col gap-1 rounded-lg border h-[84vh] w-[68%]">
-        <div className="flex items-center justify-center border-b py-2">
+      <div className="relative flex flex-col gap-1 rounded-lg border h-[84vh] lg:w-[68%] w-full">
+        <div className="flex items-center border-b py-2 lg:px-5 px-3 bg-muted">
           <div className="flex items-center gap-2">
             <Avatar>
-              <AvatarImage src={data.profileUrl} />
+              <AvatarImage
+                src={data.profileUrl || "https://github.com/shadcn.png"}
+              />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <h1 className="text-base font-semibold">{data.fullname}</h1>
+            <div className="flex flex-col pl-2">
+              <h1 className="text-base font-semibold">{data.fullname}</h1>
+              <span className="text-sm text-muted-foreground">{data.email}</span>
+            </div>
           </div>
         </div>
-        <div className="flex flex-col justify-between gap-5 py-3 px-5 max-h-[480px] overflow-y-auto overflow-x-hidden overflow-message">
+        <div className="flex flex-col justify-between gap-5 pt-3 pb-20 lg:pb-3 px-5 max-h-[480px] overflow-y-auto overflow-x-hidden overflow-message">
           {/* MESSAGE DISINi */}
           {messages &&
             messages.length > 0 &&

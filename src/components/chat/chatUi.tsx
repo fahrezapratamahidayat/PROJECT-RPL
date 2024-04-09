@@ -99,7 +99,6 @@ export default function ChatUi({ slug }: { slug: string }) {
           };
           setUserChats(userData);
         } else {
-          console.log("Document does not exist!");
         }
       } catch (error) {
         console.error("Error fetching user document:", error);
@@ -113,7 +112,7 @@ export default function ChatUi({ slug }: { slug: string }) {
     <>
       <ChatPanelLayout>
         <ConverSationList slug={slug} />
-        {!slug || slug === "" ? null : (
+        {!slug ? null : (
           <ChatRoomList data={userChats} slug={slug} />
         )}
       </ChatPanelLayout>

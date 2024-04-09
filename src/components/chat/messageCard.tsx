@@ -14,12 +14,12 @@ export default function MessageCard({
   return (
     <>
       <div className={`flex ${className} items-start gap-2`}>
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col">
           <Avatar>
             <AvatarImage src={profileUrl || "https://github.com/shadcn.png"} alt="" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-        </div>
+        </div> */}
         <div className="px-3 py-2.5 bg-secondary rounded-md">
           <p className="text-justify w-full">{message}</p>
           <span className="text-xs text-muted-foreground">{date}</span>
