@@ -109,16 +109,21 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Checkbox id="terms" />
               <Label htmlFor="terms">Accept terms and conditions</Label>
             </div>
-            <Link className="font-semibold" href={"/password"}>
+            <Link className="ml-auto inline-block text-sm underline" href={"/password"}>
               Forgot Password?
             </Link>
-          </div>
+          </div> */}
+          <Link
+            className="ml-auto inline-block text-sm underline"
+            href={"/password"}
+          >
+            Forgot Password?
+          </Link>
           {isLoading ? (
             <Button className="w-full" disabled>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

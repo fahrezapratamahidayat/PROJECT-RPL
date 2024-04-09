@@ -17,7 +17,7 @@ export function DarkModeToggle() {
 
   return (
     <>
-      <div className="fixed bottom-10 left-15 bg-red-500 rounded-full ">
+      <div className="fixed bottom-10 left-20 z-50 bg-red-500 rounded-full ">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">

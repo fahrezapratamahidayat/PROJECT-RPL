@@ -1,12 +1,12 @@
-import { Calendar, ClipboardCheck } from "lucide-react";
-import CardHome from "../card/cardHome";
+import { Activity, CreditCard, DollarSign, Users } from "lucide-react";
 import CardTasks from "../card/cardTasks";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function HomePage() {
   return (
     <>
-      <main className="lg:pl-[15.5rem] py-7 mr-9 flex flex-col gap-4">
-        <div className="border flex flex-col justify-between gap-3 px-5 py-2 rounded-lg w-full">
+      <main className="py-7 px-3 lg:px-7 flex flex-col gap-4">
+        <div className="border flex flex-col justify-center gap-3 px-3 py-2 rounded-lg w-full">
           <div className="flex flex-col space-y-1">
             <h1 className="text-lg font-bold ">Dashboard</h1>
             <p className="text-sm text-muted-foreground">
@@ -14,27 +14,61 @@ export default function HomePage() {
               pariatur.
             </p>
           </div>
-          <div className="grid grid-cols-4 items-center w-full border-t justify-items-start pt-3">
-            <CardHome
-              icon={<ClipboardCheck className="text-blue-500 w-6 h-6" />}
-              title="Completed"
-              value={2}
-            />
-            <CardHome
-              icon={<ClipboardCheck className="text-blue-500 w-6 h-6" />}
-              title="In Progress"
-              value={1}
-            />
-            <CardHome
-              icon={<ClipboardCheck className="text-blue-500 w-6 h-6" />}
-              title="Overdue"
-              value={1}
-            />
-            <CardHome
-              icon={<Calendar className="text-blue-500 w-6 h-6" />}
-              title="Upcoming"
-              value={3}
-            />
+          <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+            <Card x-chunk="dashboard-01-chunk-0">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Completed
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">0</div>
+                <p className="text-xs text-muted-foreground">
+                  0.1% from last month
+                </p>
+              </CardContent>
+            </Card>
+            <Card x-chunk="dashboard-01-chunk-1">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Subscriptions
+                </CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+2350</div>
+                <p className="text-xs text-muted-foreground">
+                  +180.1% from last month
+                </p>
+              </CardContent>
+            </Card>
+            <Card x-chunk="dashboard-01-chunk-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Sales</CardTitle>
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+12,234</div>
+                <p className="text-xs text-muted-foreground">
+                  +19% from last month
+                </p>
+              </CardContent>
+            </Card>
+            <Card x-chunk="dashboard-01-chunk-3">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Active Now
+                </CardTitle>
+                <Activity className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+573</div>
+                <p className="text-xs text-muted-foreground">
+                  +201 since last hour
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
         <div className="w-full flex items-center gap-2">

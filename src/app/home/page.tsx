@@ -6,10 +6,13 @@ import HomePage from "@/components/pages/homePage";
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <Sidebar />
-      <HomePage />
-      <DarkModeToggle />
+      <div className="flex min-h-screen w-full flex-col ">
+        <Sidebar />
+        <div className="flex flex-col lg:pl-[14rem]">
+          <Navbar />
+          <HomePage />
+        </div>
+      </div>
     </>
   );
 }

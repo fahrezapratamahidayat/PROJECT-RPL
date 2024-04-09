@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export default function DialogAddFormTasks({
+export default function DialogAddTasks({
   children,
   isOpen,
   setIsOpen,
@@ -33,12 +33,9 @@ export default function DialogAddFormTasks({
             </Button>
           </DialogTrigger>
         )}
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className=" p-4">
           <DialogHeader className="border-b pb-4">
-            <DialogTitle className="">{title}</DialogTitle>
-            <div className="">
-              
-            </div>
+            <DialogTitle className="text-left">{title}</DialogTitle>
           </DialogHeader>
           {children}
         </DialogContent>

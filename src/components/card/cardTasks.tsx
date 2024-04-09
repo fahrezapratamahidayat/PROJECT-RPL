@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "../ui/button";
-import { GripVertical, Loader2 } from "lucide-react";
+import { GripVertical, Loader2, Plus } from "lucide-react";
 import DialogFormTasks from "../form/dialogFormAddTasks";
 import ListTasks from "../schedule/listTask";
 import { Input } from "@/components/ui/input";
@@ -15,17 +15,17 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import AlertDeleteTask from "../alert/alertdelete";
 import { TasksData } from "@/types";
+import { formatDate } from "@/utils/date";
+import DialogAddTasks from "../form/dialogFormAddTasks";
 
 export default function CardTasks() {
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, status }: { data: any; status: string } = useSession();
   const [tasksList, setTasksList] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [formDelActive, setformDelActive] = useState(false);
-  const [formEditActive, setFormEditActive] = useState(false);
-  const [deleteTaskData, setDeleteTaskData] = useState<TasksData>(
-    {} as TasksData
-  );
+  const [formActive, setFormActive] = useState(false);
+  const [alertActive, setAlertActive] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<TasksData>({} as TasksData);
 
   const handleTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +38,7 @@ export default function CardTasks() {
       body: JSON.stringify({
         userId: session?.user?.id,
         owner: session?.user?.fullname,
-        title: formValues.taskName,
+        title: formValues.title,
         description: formValues.description,
         deadline: formValues.dueTime,
         created_At: formValues.dueDate,
@@ -56,7 +56,7 @@ export default function CardTasks() {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    setformDelActive(true);
+    setAlertActive(true);
     if (!session) return;
     const snapshot = await fetch("/api/deltask", {
       method: "POST",
@@ -70,49 +70,66 @@ export default function CardTasks() {
     });
     if (snapshot.status === 200) {
       snapshotData();
-      setformDelActive(false);
+      setAlertActive(false);
     }
   };
 
-  const snapshotData = async () => {
+  const handleEditTaks = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormActive(true);
+    if (!session) return;
+    const formData = new FormData(e.target as HTMLFormElement);
+    const formValues = Object.fromEntries(formData);
+    const response = await fetch("/api/updatetask", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: session?.user?.id,
+        taskId: selectedTask.taskId,
+        task: formValues,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      snapshotData();
+      setFormActive(false);
+    }
+  };
+
+  const snapshotData = React.useCallback(async () => {
     if (!session) return;
     const respone = await axios.get(`/api/userdata?id=${session?.user?.id}`);
     setTasksList(respone.data.data);
-  };
+  }, [session]);
 
   useEffect(() => {
     snapshotData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session, snapshotData]);
+
   return (
     <>
-      <AlertDeleteTask
-        isOpen={formDelActive}
-        setIsOpen={setformDelActive}
-        data={deleteTaskData}
-        onClickDelete={() => handleDeleteTask(deleteTaskData.taskId)}
-      />
-      <DialogFormTasks
-        isOpen={formEditActive}
-        setIsOpen={setFormEditActive}
-        title="Edit Task"
+      <DialogAddTasks
+        isOpen={modalOpen}
+        setIsOpen={setModalOpen}
+        title="Add Task"
         showTrigger={false}
       >
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleTask}>
           <div className="flex flex-col space-y-2">
-            <LabelInputContainer>
-              <Label htmlFor="taskName" className="text-right">
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-right">
                 Task Name
               </Label>
               <Input
-                id="taskName"
-                name="taskName"
+                id="title"
+                name="title"
                 className=""
                 type="text"
                 required
               />
-            </LabelInputContainer>
-            <LabelInputContainer>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
                 className="min-h-[40px] resize-none"
@@ -120,32 +137,133 @@ export default function CardTasks() {
                 id="description"
                 name="description"
               />
-            </LabelInputContainer>
-            <div className="flex items-center justify-between w-full gap-5">
-              <LabelInputContainer>
+            </div>
+            <div className="flex lg:items-center items-start justify-between w-full gap-2 lg:flex-row flex-wrap sm:flex-row md:flex-row">
+              <div className="space-y-2">
                 <Label htmlFor="dueDate" className="text-right">
                   Due Date
                 </Label>
                 <Input
                   id="dueDate"
                   name="dueDate"
-                  className=""
                   type="datetime-local"
                   required
                 />
-              </LabelInputContainer>
-              <LabelInputContainer>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="dueTime" className="text-right">
                   Due Time
                 </Label>
                 <Input
                   id="dueTime"
                   name="dueTime"
-                  className=""
                   type="datetime-local"
                   required
                 />
-              </LabelInputContainer>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            {isLoading ? (
+              <Button className="w-full" disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button className="w-full" type="submit">
+                Create
+              </Button>
+            )}
+          </DialogFooter>
+        </form>
+      </DialogAddTasks>
+      <AlertDeleteTask
+        isOpen={alertActive}
+        setIsOpen={setAlertActive}
+        data={selectedTask}
+        onClickDelete={() => handleDeleteTask(selectedTask.taskId)}
+      />
+      <DialogFormTasks
+        isOpen={formActive}
+        setIsOpen={setFormActive}
+        title="Edit Task"
+        showTrigger={false}
+      >
+        <form className="space-y-4" onSubmit={handleEditTaks}>
+          <div className="flex flex-col space-y-2">
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-right">
+                Task Name
+              </Label>
+              <Input
+                id="title"
+                name="title"
+                className=""
+                type="text"
+                required
+                value={selectedTask.title}
+                onChange={(e) =>
+                  setSelectedTask((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                className="min-h-[40px] resize-none"
+                placeholder="Type your message here."
+                id="description"
+                name="description"
+                value={selectedTask.description}
+                onChange={(e) =>
+                  setSelectedTask((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                required
+              />
+            </div>
+            <div className="flex lg:items-center items-start justify-between w-full gap-2 lg:flex-row flex-wrap sm:flex-row md:flex-row">
+              <div className="space-y-2">
+                <Label htmlFor="dueDate" className="text-right">
+                  Due Date
+                </Label>
+                <Input
+                  id="dueDate"
+                  name="dueDate"
+                  type="datetime-local"
+                  required
+                  value={selectedTask.created_At}
+                  onChange={(e) =>
+                    setSelectedTask((prev) => ({
+                      ...prev,
+                      created_At: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dueTime" className="text-right">
+                  Due Time
+                </Label>
+                <Input
+                  id="dueTime"
+                  name="dueTime"
+                  type="datetime-local"
+                  required
+                  value={selectedTask.deadline}
+                  onChange={(e) =>
+                    setSelectedTask((prev) => ({
+                      ...prev,
+                      deadline: e.target.value,
+                    }))
+                  }
+                />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -162,93 +280,33 @@ export default function CardTasks() {
           </DialogFooter>
         </form>
       </DialogFormTasks>
+
       <CardTaskWrapper>
         <CardTaskContainer className="flex items-center justify-between">
           <CardTaskHeader />
-          <DialogContainer className="flex items-center justify-between gap-2">
-            <DialogFormTasks
-              isOpen={modalOpen}
-              setIsOpen={setModalOpen}
-              title="Add Task"
+          <DialogContainer className="flex items-center justify-between gap-2 ">
+            <Button
+              className="flex items-center gap-1"
+              variant={"outline"}
+              onClick={() => setModalOpen(!modalOpen)}
             >
-              <form className="space-y-4" onSubmit={handleTask}>
-                <div className="flex flex-col space-y-2">
-                  <LabelInputContainer>
-                    <Label htmlFor="taskName" className="text-right">
-                      Task Name
-                    </Label>
-                    <Input
-                      id="taskName"
-                      name="taskName"
-                      className=""
-                      type="text"
-                      required
-                    />
-                  </LabelInputContainer>
-                  <LabelInputContainer>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      className="min-h-[40px] resize-none"
-                      placeholder="Type your message here."
-                      id="description"
-                      name="description"
-                    />
-                  </LabelInputContainer>
-                  <div className="flex items-center justify-between w-full gap-5">
-                    <LabelInputContainer>
-                      <Label htmlFor="dueDate" className="text-right">
-                        Due Date
-                      </Label>
-                      <Input
-                        id="dueDate"
-                        name="dueDate"
-                        className=""
-                        type="datetime-local"
-                        required
-                      />
-                    </LabelInputContainer>
-                    <LabelInputContainer>
-                      <Label htmlFor="dueTime" className="text-right">
-                        Due Time
-                      </Label>
-                      <Input
-                        id="dueTime"
-                        name="dueTime"
-                        className=""
-                        type="datetime-local"
-                        required
-                      />
-                    </LabelInputContainer>
-                  </div>
-                </div>
-                <DialogFooter>
-                  {isLoading ? (
-                    <Button className="w-full" disabled>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Please wait
-                    </Button>
-                  ) : (
-                    <Button className="w-full" type="submit">
-                      Create
-                    </Button>
-                  )}
-                </DialogFooter>
-              </form>
-            </DialogFormTasks>
+              <Plus />
+              Task
+            </Button>
             <Button className="px-2" variant={"ghost"}>
               <GripVertical className="text-muted-foreground" />
               <span className="sr-only">Sort</span>
             </Button>
           </DialogContainer>
         </CardTaskContainer>
-        <div className="flex items-center gap-2">
-          <Button className="mt-3" variant={"outline"}>
+        <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap">
+          <Button className="mt-3" variant={"outline"} size="sm">
             4 Upcoming
           </Button>
-          <Button className="mt-3" variant={"outline"}>
+          <Button className="mt-3" variant={"outline"} size="sm">
             2 Overdue
           </Button>
-          <Button className="mt-3" variant={"outline"}>
+          <Button className="mt-3" variant={"outline"} size="sm">
             0 completed
           </Button>
         </div>
@@ -258,16 +316,19 @@ export default function CardTasks() {
               <Suspense key={index} fallback={<h1>Loading</h1>}>
                 <ListTasks
                   key={index}
-                  taskName={task.title}
+                  title={task.title}
                   description={task.description}
-                  created_At={task.created_At}
-                  deadline={task.deadline}
+                  created_At={formatDate(task.created_At)}
+                  deadline={formatDate(task.deadline)}
                   showDialogEdit={() => {
-                    setFormEditActive(!formEditActive);
+                    setFormActive(!formActive);
+                    setSelectedTask({
+                      ...task,
+                    });
                   }}
                   showAlertDelete={() => {
-                    setformDelActive(!formDelActive);
-                    setDeleteTaskData({
+                    setAlertActive(!alertActive);
+                    setSelectedTask({
                       ...task,
                     });
                   }}
@@ -297,14 +358,16 @@ export default function CardTasks() {
     </>
   );
 }
-
 const CardTaskWrapper = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col border px-5 py-2 rounded-lg w-1/2", className)}
+    className={cn(
+      "flex flex-col border px-5 py-2 rounded-lg lg:w-1/2 w-full",
+      className
+    )}
     {...props}
   />
 ));
@@ -327,7 +390,7 @@ const CardTaskHeader = React.forwardRef<
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div className="flex flex-col" ref={ref} {...props}>
-    <h2 className="text-base font-bold">Task Priorities</h2>
+    <span className="lg:text-base text-sm font-bold">Task Priorities</span>
     <p className="text-sm text-muted-foreground">My Task Sorted By priority</p>
   </div>
 ));

@@ -12,9 +12,10 @@ export default function Sidebar() {
   const pathname = usePathname();
   return (
     <>
-      <aside className="hidden lg:block fixed z-20 inset-0 top-[4rem] right-auto w-[14rem] overflow-y-auto border-r">
-        <nav className="flex flex-col px-7 py-7 overflow-y-auto overflow-sidebar h-[calc(100vh-5rem)] transition-all ease-in-out">
-          <div className="leading-6 space-y-3">
+      <aside className="hidden lg:block fixed z50 inset-0 right-auto w-[14rem] overflow-y-auto border-r">
+        <nav className="flex flex-col px-7 py-4 overflow-y-auto overflow-sidebar h-[calc(100vh-5rem)] transition-all ease-in-out">
+          <h1 className="text-2xl font-semibold">Task</h1>
+          <div className="leading-6 space-y-3 py-10">
             <Link
               href="/home"
               className={`${
