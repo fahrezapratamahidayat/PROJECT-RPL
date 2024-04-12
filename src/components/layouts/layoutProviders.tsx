@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";
 import { ThemeProvider } from "../theme-provider";
+import { Toaster } from "../ui/toaster";
 
 export default function LayoutProvider({
   children,
@@ -11,6 +12,7 @@ export default function LayoutProvider({
 }) {
   return (
     <>
+      <Toaster />
       <SessionProvider>
         <NextTopLoader
           color="#fff"

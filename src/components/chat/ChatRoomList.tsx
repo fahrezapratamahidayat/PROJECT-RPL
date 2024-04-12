@@ -5,7 +5,7 @@ import { Textarea } from "../ui/textarea";
 import MessageCard from "./messageCard";
 import { id } from "date-fns/locale";
 import { Button } from "../ui/button";
-import { SendIcon } from "lucide-react";
+import { ArrowLeft, SendIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -18,6 +18,7 @@ import {
   where,
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase/init";
+import { useRouter } from "next/navigation";
 
 export default function ChatRoomList({
   data,
@@ -30,6 +31,7 @@ export default function ChatRoomList({
   const { data: session }: { data: any } = useSession();
   const [chatrooms, setChatrooms] = useState([] as any);
   const [messages, setMessages] = useState([] as any);
+  const router = useRouter();
 
   // const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   //   e.preventDefault();
@@ -164,6 +166,7 @@ export default function ChatRoomList({
       });
 
       setMessageInput("");
+      (e.target as HTMLFormElement).reset();
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -245,8 +248,12 @@ export default function ChatRoomList({
 
   return (
     <>
-      <div className="relative flex flex-col gap-1 rounded-lg border h-[84vh] lg:w-[68%] w-full">
-        <div className="flex items-center border-b py-2 lg:px-5 px-3 bg-muted">
+      <div className="relative flex flex-col gap-1 rounded-lg border lg:h-[84vh]  lg:w-[68%] w-full">
+        <div className="flex items-center border-b py-2 lg:px-5 px-3 gap-2 bg-muted ">
+          <Button variant={"ghost"} onClick={() => router.back()} size={"icon"}>
+            <ArrowLeft className="" />
+            <span className="sr-only">Back</span>
+          </Button>
           <div className="flex items-center gap-2">
             <Avatar>
               <AvatarImage
@@ -254,13 +261,15 @@ export default function ChatRoomList({
               />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col pl-2">
+            <div className="flex flex-col pl-1">
               <h1 className="text-base font-semibold">{data.fullname}</h1>
-              <span className="text-sm text-muted-foreground">{data.email}</span>
+              {/* <span className="text-sm text-muted-foreground">
+                {data.email}
+              </span> */}
             </div>
           </div>
         </div>
-        <div className="flex flex-col justify-between gap-5 pt-3 pb-20 lg:pb-3 px-5 max-h-[480px] overflow-y-auto overflow-x-hidden overflow-message">
+        <div className="flex flex-col justify-between gap-5 pt-3 mb-20 lg:pb-3 px-5 lg:max-h-[480px] max-h-[80vh] overflow-y-auto overflow-x-hidden overflow-message">
           {/* MESSAGE DISINi */}
           {messages &&
             messages.length > 0 &&

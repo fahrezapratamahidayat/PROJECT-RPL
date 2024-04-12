@@ -13,11 +13,13 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function Navbar() {
+export default function Navbar({ className }: { className?: string }) {
   const pathname = usePathname();
   return (
     <>
-      <div className="sticky top-0 flex left-0 z-10 max-w-full w-full items-center justify-between  lg:flex lg:px-7 px-3 py-3 border-b backdrop-blur-lg">
+      <div
+        className={`${className} sticky top-0 flex left-0 z-10 max-w-full w-full items-center justify-between  lg:flex lg:px-7 px-3 py-3 border-b backdrop-blur-lg`}
+      >
         <Sheet>
           <SheetTrigger asChild>
             <Button size="icon" variant="ghost" className="lg:hidden">

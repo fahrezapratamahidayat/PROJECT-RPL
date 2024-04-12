@@ -1,7 +1,28 @@
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 
 
 export function formatDate(datetime: string) {
     const date = new Date(datetime);
     return format(date, 'dd MMMM yyyy HH:mm:ss')
 }
+
+/**
+ * Fungsi untuk memformat tanggal. Jika tanggal tidak valid, mengembalikan "Tanggal tidak valid".
+ * 
+ * @param {string} dateString - String tanggal yang akan diformat.
+ * @param {string} formatString - Format string yang diinginkan untuk output.
+ * @returns {string} Tanggal yang sudah diformat atau "Tanggal tidak valid".
+ */
+export const formatDateString = (dateString: string | undefined, formatString: string = 'PPP'): string => {
+  console.log('Input dateString:', dateString); // Tambahkan log untuk input
+  if (!dateString) {
+    return 'Tanggal tidak valid';
+  }
+  const date = parseISO(dateString);
+  console.log('Date after parseISO:', date); // Cek nilai setelah parseISO
+  console.log('Is date valid?', isValid(date)); // Cek apakah tanggal valid
+  if (isValid(date)) {
+    return format(date, formatString);
+  }
+  return 'Tanggal tidak valid';
+};

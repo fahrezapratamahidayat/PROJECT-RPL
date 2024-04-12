@@ -57,13 +57,13 @@ export default function PageChats(props: ChatSlug) {
       <div className="flex min-h-screen w-full flex-col ">
         <Sidebar />
         <div className="flex flex-col lg:pl-[14rem]">
-          <Navbar />
-          <ChatPanelLayout>
+          <Navbar className="hidden lg:flex"/>
+          <div className="flex gap-2 lg:py-7 lg:px-7 items-start h-full w-ful">
             <ConverSationList slug={params.slug} className="lg:flex hidden" />
             {!params.slug ? null : (
               <ChatRoomList data={userChats} slug={params.slug} />
             )}
-          </ChatPanelLayout>
+          </div>
         </div>
       </div>
     </>

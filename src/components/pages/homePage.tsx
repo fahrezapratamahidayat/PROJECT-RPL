@@ -2,6 +2,7 @@ import { Activity, CreditCard, DollarSign, Users } from "lucide-react";
 import CardTasks from "../card/cardTasks";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { greetings } from "@/hooks/greetings";
 export default function HomePage() {
   return (
     <>
@@ -10,8 +11,7 @@ export default function HomePage() {
           <div className="flex flex-col space-y-1">
             <h1 className="text-lg font-bold ">Dashboard</h1>
             <p className="text-sm text-muted-foreground">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolor,
-              pariatur.
+             Halo, {greetings()} 
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">

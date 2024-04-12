@@ -3,17 +3,18 @@ type Timestamp = {
   nanoseconds: number;
 };
 export type TasksData = {
-  created_At: string;
-  deadline: string;
+  dueDate: string;
+  dueTime: string;
   description: string;
   modules: any[];
   ownerId: string;
   status: boolean;
-  status_task: string;
+  statusTask: string;
   teams: any[];
   title: string;
   userId: string;
   taskId: string;
+  typeTask: string;
 };
 
 export type UserData = {

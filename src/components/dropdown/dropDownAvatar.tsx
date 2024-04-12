@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { Suspense } from "react";
+import Link from "next/link";
 
 export function DropdownAvatar() {
   const { data: session }: { data: any } = useSession();
@@ -46,7 +47,7 @@ export function DropdownAvatar() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <Link href={"/settings"}>settings</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

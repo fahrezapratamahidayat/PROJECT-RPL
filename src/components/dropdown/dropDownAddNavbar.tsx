@@ -1,63 +1,79 @@
-import {
-  Plus,
-  SquareCheck,
-  StickyNote,
-  Users,
-} from "lucide-react";
+import { Plus, SquareCheck, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { useTasks } from "@/hooks/useTaskManager";
+import DialogAddTasks from "../form/dialogFormAddTasks";
 
 export function DropDownAddNavbar() {
   const { data: session }: { data: any } = useSession();
+  const [modalOpen, setModalOpen] = useState(false);
+  const {
+    isLoading,
+    tasksList,
+    handleTask,
+    fetchTasks,
+    handleEditTask,
+    handleDeleteTask,
+  } = useTasks();
+
+  const handleAddTasks = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const formValues = Object.fromEntries(formData);
+    await handleTask(formData);
+    setModalOpen(false);
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild className="">
-        <div className="flex items-center relative rounded-full bg-secondary">
-          <Plus />
-        </div>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 mr-4 mt-2">
-        <DropdownMenuGroup >
-          <DropdownMenuItem className="gap-2">
-            <SquareCheck />
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">Create task</span>
-              <span className="text-xs text-muted-foreground">
-                Create a new task for today
-              </span>
-            </div>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="gap-2">
-            <Users className="" />
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">Create Team</span>
-              <span className="text-xs text-muted-foreground">
-                Create your team now
-              </span>
-            </div>
-          </DropdownMenuItem>
-          {/* <DropdownMenuItem className="gap-2">
-            <StickyNote />
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">Create Project</span>
-              <span className="text-xs text-muted-foreground">
-                Create a new project for team
-              </span>
-            </div>
-          </DropdownMenuItem> */}
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DialogAddTasks
+        isOpen={modalOpen}
+        setIsOpen={setModalOpen}
+        title="Add Task"
+        showTrigger={false}
+        isLoading={isLoading}
+        onSubmit={handleAddTasks}
+      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild className="">
+          <div className="flex items-center relative rounded-full bg-secondary">
+            <Plus />
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56 mr-4 mt-2">
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              className="gap-2"
+              onClick={() => setModalOpen(true)}
+            >
+              <SquareCheck />
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold">Create task</span>
+                <span className="text-xs text-muted-foreground">
+                  Create a new task for today
+                </span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2">
+              <Users className="" />
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold">Create Team</span>
+                <span className="text-xs text-muted-foreground">
+                  Create your team now
+                </span>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 }
 
