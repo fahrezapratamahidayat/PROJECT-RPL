@@ -27,3 +27,16 @@ export type UserData = {
   email: string;
   idp: string;
 }
+
+export interface ChatRoom {
+  id?: string;
+  created_at: Date;
+  type: string;
+  users: string[];
+}
+export interface Message {
+  id?: string;
+  message: string;
+  sender: string;
+  timestamp: Date;
+}

@@ -1,4 +1,4 @@
-"use client";
+"use client";;
 import { formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Textarea } from "../ui/textarea";
@@ -8,17 +8,8 @@ import { Button } from "../ui/button";
 import { ArrowLeft, SendIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
-import { firestore } from "@/lib/firebase/init";
 import { useRouter } from "next/navigation";
+import { getMessages, getOrCreateChatRoom, sendMessage } from "@/hooks/useChattings";
 
 export default function ChatRoomList({
   data,
@@ -29,204 +20,50 @@ export default function ChatRoomList({
 }) {
   const [messageInput, setMessageInput] = React.useState<string>("");
   const { data: session }: { data: any } = useSession();
-  const [chatrooms, setChatrooms] = useState([] as any);
-  const [messages, setMessages] = useState([] as any);
+  const [chatroom, setChatroom] = useState([] as any)
+  const [message, setMessages] = useState([] as any);
   const router = useRouter();
 
-  // const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   if (!session || !messageInput) return;
-  //   const { user } = session;
-
-  //   try {
-  //     const chatroomQuery = query(
-  //       collection(firestore, "chatrooms"),
-  //       where("users", "array-contains-any", [user?.id, slug])
-  //     );
-  //     const chatroomQuerySnapshot = await getDocs(chatroomQuery);
-
-  //     let chatroomId;
-  //     if (chatroomQuerySnapshot.empty) {
-  //       const newChatroomRef = await addDoc(
-  //         collection(firestore, "chatrooms"),
-  //         {
-  //           users: [user?.id, slug],
-  //           createdAt: new Date(),
-  //           content: [],
-  //           type: "direct",
-  //         }
-  //       );
-  //       chatroomId = newChatroomRef.id;
-  //     } else {
-  //       chatroomQuerySnapshot.forEach((doc) => {
-  //         chatroomId = doc.id;
-  //       });
-  //     }
-
-  //     await addDoc(collection(firestore, `chatrooms/${chatroomId}/messages`), {
-  //       sender: user?.id,
-  //       timestamp: new Date().toISOString(),
-  //       content: messageInput,
-  //       likes: 0,
-  //       dislikes: 0,
-  //     });
-
-  //     setMessageInput("");
-  //   } catch (error) {
-  //     console.error("Error sending message:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const fetchChatrooms = async () => {
-  //     if (!session) return;
-
-  //     const { user } = session;
-  //     const chatroomQuery = query(
-  //       collection(firestore, "chatrooms"),
-  //       where("users", "array-contains", user?.id)
-  //     );
-
-  //     try {
-  //       const chatroomQuerySnapshot = await getDocs(chatroomQuery);
-  //       if (!chatroomQuerySnapshot.empty) {
-  //         const chatroomData = chatroomQuerySnapshot.docs[0].data();
-  //         setChatrooms({
-  //           id: chatroomQuerySnapshot.docs[0].id,
-  //           type: chatroomData.type,
-  //           content: chatroomData.content,
-  //           users: chatroomData.users,
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching chatrooms:", error);
-  //     }
-  //   };
-
-  //   fetchChatrooms();
-  // }, [session]);
-
-  // useEffect(() => {
-  //   if (!chatrooms?.id) return;
-
-  //   const chatroomRef = query(
-  //     collection(firestore, `chatrooms/${chatrooms.id}/messages`),
-  //     orderBy("timestamp", "desc"),
-  //     limit(50)
-  //   );
-  //   const unsubscribe = onSnapshot(chatroomRef, (snapshot) => {
-  //     const messagesData: any = [];
-  //     snapshot.forEach((doc) => {
-  //       messagesData.push({
-  //         id: doc.id,
-  //         ...doc.data(),
-  //       });
-  //     });
-  //     setMessages(messagesData.reverse());
-  //   });
-
-  //   return () => {
-  //     unsubscribe();
-  //   };
-  // }, [chatrooms.id, messages]);
-
-  const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!session || !messageInput) return;
+useEffect(() => {
+  const getChatRoom = async () => {
+    if (!session) return;
     const { user } = session;
 
     try {
-      const chatroomQuery = query(
-        collection(firestore, "chatrooms"),
-        where("users", "array-contains-any", [user?.id, slug])
-      );
-      const chatroomQuerySnapshot = await getDocs(chatroomQuery);
-
-      let chatroomId;
-      if (chatroomQuerySnapshot.empty) {
-        const newChatroomRef = await addDoc(
-          collection(firestore, "chatrooms"),
-          {
-            users: [user?.id, slug],
-            createdAt: new Date(),
-            type: "direct",
-          }
-        );
-        chatroomId = newChatroomRef.id;
-      } else {
-        chatroomId = chatroomQuerySnapshot.docs[0].id;
-      }
-
-      await addDoc(collection(firestore, `chatrooms/${chatroomId}/messages`), {
-        sender: user?.id,
-        timestamp: new Date().toISOString(),
-        content: messageInput,
-        likes: 0,
-        dislikes: 0,
-      });
-
-      setMessageInput("");
-      (e.target as HTMLFormElement).reset();
+      const users = [user.id, slug];
+      const chatRoom = await getOrCreateChatRoom(users, "direct");
+      setChatroom(chatRoom);
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error(error);
     }
   };
+  getChatRoom();
+}, [session, slug]);
 
-  useEffect(() => {
-    const fetchChatrooms = async () => {
-      if (!session) return;
+useEffect(() => {
+  if (!chatroom.id) return;
 
-      const { user } = session;
-      const chatroomQuery = query(
-        collection(firestore, "chatrooms"),
-        where("users", "array-contains", user?.id)
-      );
+  const fetchMessages = async () => {
+    const loadedMessages = await getMessages(chatroom.id);
+    setMessages(loadedMessages);
+  };
 
-      try {
-        const chatroomQuerySnapshot = await getDocs(chatroomQuery);
-        if (!chatroomQuerySnapshot.empty) {
-          const chatroomData = chatroomQuerySnapshot.docs[0].data();
-          setChatrooms({
-            id: chatroomQuerySnapshot.docs[0].id,
-            type: chatroomData.type,
-            content: chatroomData.content,
-            users: chatroomData.users,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching chatrooms:", error);
-      }
-    };
+  fetchMessages();
+}, [chatroom.id]);
 
-    fetchChatrooms();
-  }, [session]);
+const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (!session || !messageInput || !chatroom.id) return;
+  const { user } = session;
 
-  useEffect(() => {
-    if (!chatrooms?.id) return;
-
-    const chatroomRef = collection(
-      firestore,
-      `chatrooms/${chatrooms.id}/messages`
-    );
-    const fetchMessages = async () => {
-      try {
-        const querySnapshot = await getDocs(
-          query(chatroomRef, orderBy("timestamp", "desc"), limit(50))
-        );
-        const messagesData: any = [];
-        querySnapshot.forEach((doc) => {
-          messagesData.push({
-            id: doc.id,
-            ...doc.data(),
-          });
-        });
-        setMessages(messagesData.reverse());
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      }
-    };
-    fetchMessages();
-  }, [chatrooms.id]);
+  try {
+    await sendMessage(chatroom.id, messageInput, user.id);
+    setMessageInput("");
+    (e.target as HTMLFormElement).reset();
+  } catch (error) {
+    console.error("Error sending message:", error);
+  }
+};
 
   function timeStapHandle(item: any) {
     const timestamp = new Date(item.timestamp);
@@ -271,9 +108,9 @@ export default function ChatRoomList({
         </div>
         <div className="flex flex-col justify-between gap-5 pt-3 mb-20 lg:pb-3 px-5 lg:max-h-[480px] max-h-[80vh] overflow-y-auto overflow-x-hidden overflow-message">
           {/* MESSAGE DISINi */}
-          {messages &&
-            messages.length > 0 &&
-            messages.map((item: any) => (
+          {message &&
+            message.length > 0 &&
+            message.map((item: any) => (
               <MessageCard
                 profileUrl={
                   item.sender === session?.user?.id
@@ -281,7 +118,7 @@ export default function ChatRoomList({
                     : data.profileUrl
                 }
                 key={item.id}
-                message={item.content}
+                message={item.message}
                 date={timeStapHandle(item)}
                 className={`${
                   item.sender === session?.user?.id
@@ -290,7 +127,7 @@ export default function ChatRoomList({
                 }`}
               />
             ))}
-          {messages && messages.length === 0 && (
+          {message && message.length === 0 && (
             <div className={`flex items-center gap-2 h-full`}>
               <h1>No Message</h1>
             </div>

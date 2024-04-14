@@ -17,6 +17,19 @@ import {
 import { firestore } from "@/lib/firebase/init";
 import { useSession } from "next-auth/react";
 
+interface User {
+  id: string;
+  email: string;
+  fullname: string;
+  // Tambahkan properti lain sesuai kebutuhan
+}
+
+interface Chatroom {
+  id: string;
+  users: string[];
+  // Tambahkan properti lain sesuai kebutuhan
+}
+
 export default function ConverSationList({
   slug,
   className,
@@ -24,74 +37,53 @@ export default function ConverSationList({
   slug: string;
   className?: string;
 }) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const { data: session } = useSession();
-  const [querySearch, setQuerySearch] = React.useState("");
-  const [usersList, setUserList] = useState([] as any[]);
-  const [chatrooms, setChatrooms] = useState<any[]>([]);
+  const [querySearch, setQuerySearch] = useState("");
+  const [usersList, setUserList] = useState<User[]>([]);
+  const [chatrooms, setChatrooms] = useState<User[]>([]);
 
   useEffect(() => {
-    if (open) {
-      let q = query(collection(firestore, "users"), orderBy("fullname", "asc"));
+    if (!session?.user?.id) return;
+
+    const fetchUsers = () => {
+      let usersQuery = query(collection(firestore, "users"), orderBy("fullname", "asc"));
       if (querySearch !== "") {
-        q = query(q, where("fullname", ">=", querySearch));
+        usersQuery = query(usersQuery, where("fullname", ">=", querySearch));
       }
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const fetchedUsers: any = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const filteredUsers = fetchedUsers
-          .filter(
-            (user: any) =>
-              user !== session?.user?.id && user.email !== session?.user?.email
-          )
-          .map((user: any) => ({
-            ...user,
-            tasks: [],
-          }));
-        setUserList(filteredUsers);
+      return onSnapshot(usersQuery, (snapshot) => {
+        const fetchedUsers = snapshot.docs
+          .filter((doc) => doc.id !== session.user?.id)
+          .map((doc) => ({ id: doc.id, ...doc.data() } as User));
+        setUserList(fetchedUsers);
       });
-      return () => unsubscribe();
-    }
-  }, [open, querySearch, session]);
+    };
 
-  useEffect(() => {
     const fetchChatrooms = async () => {
-      if (!session) return;
-
-      const { user } = session;
-      const chatroomQuery = query(
-        collection(firestore, "chatrooms"),
-        where("users", "array-contains", user?.id)
-      );
-
+      const chatroomQuery = query(collection(firestore, "chatrooms"), where("users", "array-contains", session.user?.id));
       const chatroomQuerySnapshot = await getDocs(chatroomQuery);
-      const chatroomsData: any = chatroomQuerySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const chatroomsData = chatroomQuerySnapshot.docs.map((doc) => doc.data() as Chatroom);
 
-      const usersData = [];
-      for (const chatroom of chatroomsData) {
-        for (const userId of chatroom.users) {
-          if (userId !== user?.id) {
+      const usersDataPromises = chatroomsData.map(async (chatroom) => {
+        return Promise.all(
+          chatroom.users.filter((userId) => userId !== session.user?.id).map(async (userId) => {
             const userDoc = await getDoc(doc(firestore, "users", userId));
-            if (userDoc.exists()) {
-              const userData = {
-                id: userDoc.id,
-                ...userDoc.data(),
-              };
-              usersData.push(userData);
-            }
-          }
-        }
-      }
+            return userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as User : null;
+          })
+        );
+      });
+
+      const usersData = (await Promise.all(usersDataPromises)).flat().filter((user): user is User => user !== null);
       setChatrooms(usersData);
     };
 
-    fetchChatrooms();
-  }, [session]);
+    if (open) {
+      const unsubscribe = fetchUsers();
+      return () => unsubscribe();
+    } else {
+      fetchChatrooms();
+    }
+  }, [session, open, querySearch]);
 
   return (
     <>

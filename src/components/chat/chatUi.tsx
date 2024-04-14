@@ -107,6 +107,7 @@ export default function ChatUi({ slug }: { slug: string }) {
 
     fetchUserById();
   }, [slug]);
+  console.log(userChats)
   
   return (
     <>

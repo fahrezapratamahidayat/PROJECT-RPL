@@ -51,7 +51,6 @@ export default function PageChats(props: ChatSlug) {
 
     fetchUserById();
   }, [params.slug]);
-
   return (
     <>
       <div className="flex min-h-screen w-full flex-col ">
