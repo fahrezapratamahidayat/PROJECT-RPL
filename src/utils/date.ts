@@ -13,14 +13,11 @@ export function formatDate(datetime: string) {
  * @param {string} formatString - Format string yang diinginkan untuk output.
  * @returns {string} Tanggal yang sudah diformat atau "Tanggal tidak valid".
  */
-export const formatDateString = (dateString: string | undefined, formatString: string = 'PPP'): string => {
-  console.log('Input dateString:', dateString); // Tambahkan log untuk input
+export const formatDateString = (dateString: string | undefined, formatString: string = 'PPP'): string => { // Tambahkan log untuk input
   if (!dateString) {
     return 'Tanggal tidak valid';
   }
-  const date = parseISO(dateString);
-  console.log('Date after parseISO:', date); // Cek nilai setelah parseISO
-  console.log('Is date valid?', isValid(date)); // Cek apakah tanggal valid
+  const date = parseISO(dateString); // Cek apakah tanggal valid
   if (isValid(date)) {
     return format(date, formatString);
   }

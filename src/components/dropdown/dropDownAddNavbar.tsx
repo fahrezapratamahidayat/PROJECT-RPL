@@ -8,29 +8,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { useTasks } from "@/hooks/useTaskManager";
 import DialogAddTasks from "../form/dialogFormAddTasks";
 
 export function DropDownAddNavbar() {
   const { data: session }: { data: any } = useSession();
   const [modalOpen, setModalOpen] = useState(false);
-  const {
-    isLoading,
-    tasksList,
-    handleTask,
-    fetchTasks,
-    handleEditTask,
-    handleDeleteTask,
-  } = useTasks();
-
-  const handleAddTasks = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const formValues = Object.fromEntries(formData);
-    await handleTask(formData);
-    setModalOpen(false);
-  };
-
+  
   return (
     <>
       <DialogAddTasks
@@ -38,8 +21,6 @@ export function DropDownAddNavbar() {
         setIsOpen={setModalOpen}
         title="Add Task"
         showTrigger={false}
-        isLoading={isLoading}
-        onSubmit={handleAddTasks}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="">

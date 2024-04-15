@@ -10,6 +10,7 @@ import { TasksData } from "@/types";
 interface UseTasksReturn {
     tasksList: TasksData[];
     isLoading: boolean;
+    formActive: boolean;
     handleTask: (taskData: FormData) => Promise<void>;
     handleDeleteTask: (taskId: string) => Promise<void>;
     handleEditTask: (taskId: string, taskData: FormData) => Promise<void>;
@@ -19,21 +20,26 @@ interface UseTasksReturn {
 export const useTasks = (): UseTasksReturn   => {
   const [tasksList, setTasksList] = useState<TasksData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [formActive, setFormActive] = useState(false);
   const { data: session } = useSession();
   const { toast } = useToast();
 
   const fetchTasks = useCallback(async () => {
     if (!session) return;
+    setIsLoading(true);
     try {
       const response = await axios.get(`/api/userdata?id=${session?.user?.id}`);
       setTasksList(response.data.data);
     } catch (error) {
       console.error("Failed to fetch tasks", error);
+    }finally {
+      setIsLoading(false);
     }
   }, [session]);
 
   const handleTask = async (taskData: FormData) => {
     if (!session) return;
+    setIsLoading(true);
     try {
       const formValues = Object.fromEntries(taskData);
       await axios.post("/api/addtask", {
@@ -50,11 +56,14 @@ export const useTasks = (): UseTasksReturn   => {
         title: "Failed to add task",
         description: "Failed to add task",
       });
+    }finally {
+      setIsLoading(false);
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
     if (!session) return;
+    setIsLoading(true);
     try {
       await axios.post("/api/deltask", {
         userId: session?.user?.id,
@@ -70,11 +79,14 @@ export const useTasks = (): UseTasksReturn   => {
         title: "Failed to delete task",
         description: "Failed to delete task",
       });
+    }finally {
+      setIsLoading(false);
     }
   };
 
   const handleEditTask = async (taskId: string, taskData: FormData) => {
     if (!session) return;
+    setIsLoading(true);
     try {
       const formValues = Object.fromEntries(taskData);
       await axios.post("/api/updatetask", {
@@ -92,6 +104,8 @@ export const useTasks = (): UseTasksReturn   => {
         title: "Failed to edit task",
         description: "Failed to edit task",
       });
+    }finally {
+      setIsLoading(false);
     }
   };
 
@@ -102,5 +116,6 @@ export const useTasks = (): UseTasksReturn   => {
     handleDeleteTask,
     handleEditTask,
     fetchTasks,
+    formActive,
   };
 };

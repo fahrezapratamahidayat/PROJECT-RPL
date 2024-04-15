@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { Button } from "../ui/button";
 import { GripVertical, Loader2, Plus } from "lucide-react";
 import ListTasks from "../schedule/listTask";
@@ -17,23 +17,8 @@ export default function CardTasks() {
   const [formActive, setFormActive] = useState(false);
   const [alertActive, setAlertActive] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TasksData>({} as TasksData);
-  const {
-    isLoading,
-    tasksList,
-    handleTask,
-    fetchTasks,
-    handleEditTask,
-    handleDeleteTask,
-  } = useTasks();
-
-  const handleAddTasks = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const formValues = Object.fromEntries(formData);
-    console.log(formValues);
-    await handleTask(formData);
-    setModalOpen(false);
-  };
+  const { isLoading, tasksList, fetchTasks, handleEditTask, handleDeleteTask } =
+    useTasks();
 
   const handleDeleteTasks = async () => {
     await handleDeleteTask(selectedTask.taskId);
@@ -53,14 +38,6 @@ export default function CardTasks() {
 
   return (
     <>
-      <DialogAddTasks
-        isOpen={modalOpen}
-        setIsOpen={setModalOpen}
-        title="Add Task"
-        showTrigger={false}
-        isLoading={isLoading}
-        onSubmit={handleAddTasks}
-      />
       <AlertDeleteTask
         isOpen={alertActive}
         setIsOpen={setAlertActive}
@@ -81,14 +58,12 @@ export default function CardTasks() {
         <CardTaskContainer className="flex items-center justify-between">
           <CardTaskHeader />
           <DialogContainer className="flex items-center justify-between gap-2 ">
-            <Button
-              className="flex items-center gap-1"
-              variant={"outline"}
-              onClick={() => setModalOpen(!modalOpen)}
-            >
-              <Plus />
-              Task
-            </Button>
+            <DialogAddTasks
+              isOpen={modalOpen}
+              setIsOpen={setModalOpen}
+              title="Add Task"
+              showTrigger={true}
+            />
             <Button className="px-2" variant={"ghost"}>
               <GripVertical className="text-muted-foreground" />
               <span className="sr-only">Sort</span>
