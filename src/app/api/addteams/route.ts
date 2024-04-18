@@ -1,24 +1,26 @@
-import { addTasks} from "@/services/task/task";
+import { addTeams } from "@/services/teams/teams";
 import { NextRequest, NextResponse } from "next/server";
+
 
 export async function POST(req: NextRequest, res: NextResponse) {
     try {
         const requestData = await req.json();
-        const result = await addTasks(requestData);
+        const result = await addTeams(requestData);
 
         if (result.status) {
             return NextResponse.json({
-                status: 200,
-                message: "Task added successfully",
+                status: result.status,
+                statusCode: result.statusCode,
+                message: result.message,
             });
         } else {
             return NextResponse.json({
-                status: 404,
-                message: "Failed to add task: " + result.message
+                status: result.status,
+                statusCode: result.statusCode,
+                message: result.message,
             });
         }
     } catch (error) {
-        console.error("Error:", error);
         return NextResponse.json({
             status: 500,
             message: "Internal Server Error"

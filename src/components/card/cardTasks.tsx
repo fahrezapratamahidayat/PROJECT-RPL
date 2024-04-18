@@ -21,14 +21,14 @@ export default function CardTasks() {
     useTasks();
 
   const handleDeleteTasks = async () => {
-    await handleDeleteTask(selectedTask.taskId);
+    await handleDeleteTask(selectedTask.id);
     setAlertActive(false);
   };
 
   const handleEditTasks = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    await handleEditTask(selectedTask.taskId, formData);
+    await handleEditTask(selectedTask.id, formData);
     setFormActive(false);
   };
 
@@ -55,7 +55,7 @@ export default function CardTasks() {
         onSubmit={handleEditTasks}
       />
       <CardTaskWrapper>
-        <CardTaskContainer className="flex items-center justify-between">
+        <CardTaskContainer className="flex items-center justify-between mr-1">
           <CardTaskHeader />
           <DialogContainer className="flex items-center justify-between gap-2 ">
             <DialogAddTasks
@@ -70,7 +70,7 @@ export default function CardTasks() {
             </Button>
           </DialogContainer>
         </CardTaskContainer>
-        <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap">
+        <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full">
           <Button className="mt-3" variant={"outline"} size="sm">
             4 Upcoming
           </Button>
@@ -81,48 +81,50 @@ export default function CardTasks() {
             0 completed
           </Button>
         </div>
-        {isLoading ? (
-          <div className="flex justify-center items-center min-h-[300px] gap-1">
-            <Loader2 className="animate-spin" />
-            <span>Loading...</span>
-          </div>
-        ) : tasksList.length > 0 ? (
-          tasksList.map((task: TasksData) => {
-            const formattedDeadline = formatDateString(
-              task.dueTime,
-              "dd MMMM yyyy HH:mm:ss"
-            );
-            const formattedCreatedAt = formatDateString(
-              task.dueDate,
-              "dd MMMM yyyy HH:mm:ss"
-            );
-            return (
-              <ListTasks
-                key={task.taskId}
-                title={task.title}
-                description={task.description}
-                deadline={formattedDeadline}
-                created_At={formattedCreatedAt}
-                showAlertDelete={() => {
-                  setAlertActive(!alertActive);
-                  setSelectedTask({
-                    ...task,
-                  });
-                }}
-                showDialogEdit={() => {
-                  setFormActive(!formActive);
-                  setSelectedTask({
-                    ...task,
-                  });
-                }}
-              />
-            );
-          })
-        ) : (
-          <div className="flex justify-center items-center min-h-[300px]">
-            <span>Tidak ada data</span>
-          </div>
-        )}
+        <div className="max-h-[320px] overflow-auto overflow-TaskList">
+          {isLoading ? (
+            <div className="flex justify-center items-center min-h-[280px] gap-1">
+              <Loader2 className="animate-spin" />
+              <span>Loading...</span>
+            </div>
+          ) : tasksList.length > 0 ? (
+            tasksList.map((task: TasksData) => {
+              const formattedDeadline = formatDateString(
+                task.dueTime,
+                "dd MMMM yyyy HH:mm:ss"
+              );
+              const formattedCreatedAt = formatDateString(
+                task.dueDate,
+                "dd MMMM yyyy HH:mm:ss"
+              );
+              return (
+                <ListTasks
+                  key={task.id}
+                  title={task.title}
+                  description={task.description}
+                  deadline={formattedDeadline}
+                  created_At={formattedCreatedAt}
+                  showAlertDelete={() => {
+                    setAlertActive(!alertActive);
+                    setSelectedTask({
+                      ...task,
+                    });
+                  }}
+                  showDialogEdit={() => {
+                    setFormActive(!formActive);
+                    setSelectedTask({
+                      ...task,
+                    });
+                  }}
+                />
+              );
+            })
+          ) : (
+            <div className="flex justify-center items-center min-h-[280px]">
+              <span>Tidak ada data</span>
+            </div>
+          )}
+        </div>
       </CardTaskWrapper>
     </>
   );

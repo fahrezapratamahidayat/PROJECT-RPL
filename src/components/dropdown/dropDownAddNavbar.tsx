@@ -9,11 +9,13 @@ import {
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import DialogAddTasks from "../form/dialogFormAddTasks";
+import DialogFormAddTeam from "../form/dialogFormAddTeam";
 
 export function DropDownAddNavbar() {
   const { data: session }: { data: any } = useSession();
   const [modalOpen, setModalOpen] = useState(false);
-  
+  const [modalAddTeam, setModalTeam] = useState(false);
+
   return (
     <>
       <DialogAddTasks
@@ -21,6 +23,11 @@ export function DropDownAddNavbar() {
         setIsOpen={setModalOpen}
         title="Add Task"
         showTrigger={false}
+      />
+      <DialogFormAddTeam
+        isOpen={modalAddTeam}
+        setIsOpen={setModalTeam}
+        title="Add Team"
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="">
@@ -36,13 +43,16 @@ export function DropDownAddNavbar() {
             >
               <SquareCheck />
               <div className="flex flex-col">
-                <span className="text-sm font-semibold">Create task</span>
+                <span className="text-sm font-semibold">Create Task</span>
                 <span className="text-xs text-muted-foreground">
-                  Create a new task for today
+                  Create a new tasks
                 </span>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem className="gap-2">
+            <DropdownMenuItem
+              className="gap-2"
+              onClick={() => setModalTeam(true)}
+            >
               <Users className="" />
               <div className="flex flex-col">
                 <span className="text-sm font-semibold">Create Team</span>

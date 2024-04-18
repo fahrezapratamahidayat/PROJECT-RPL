@@ -4,14 +4,14 @@ import { useState, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import { useToast } from "../components/ui/use-toast";
 import axios from "axios";
-import { TasksData } from "@/types";
+import { TasksData, addTask } from "@/types";
 
 
 interface UseTasksReturn {
     tasksList: TasksData[];
     isLoading: boolean;
     formActive: boolean;
-    handleTask: (taskData: FormData) => Promise<void>;
+    handleTask: (taskData: addTask) => Promise<void>;
     handleDeleteTask: (taskId: string) => Promise<void>;
     handleEditTask: (taskId: string, taskData: FormData) => Promise<void>;
     fetchTasks: () => Promise<void>;
@@ -28,8 +28,8 @@ export const useTasks = (): UseTasksReturn   => {
     if (!session) return;
     setIsLoading(true);
     try {
-      const response = await axios.get(`/api/userdata?id=${session?.user?.id}`);
-      setTasksList(response.data.data);
+      const response = await axios.get(`/api/getTasks?user=${session?.user?.id}`);
+      setTasksList(response.data.tasks);
     } catch (error) {
       console.error("Failed to fetch tasks", error);
     }finally {
@@ -37,14 +37,13 @@ export const useTasks = (): UseTasksReturn   => {
     }
   }, [session]);
 
-  const handleTask = async (taskData: FormData) => {
+  const handleTask = async (taskData: addTask) => {
     if (!session) return;
     setIsLoading(true);
     try {
-      const formValues = Object.fromEntries(taskData);
       await axios.post("/api/addtask", {
-        userId: session?.user?.id,
-        ...formValues,
+        createdBy: session?.user?.id,
+        ...taskData,
       });
       await fetchTasks();
       toast({
@@ -61,13 +60,12 @@ export const useTasks = (): UseTasksReturn   => {
     }
   };
 
-  const handleDeleteTask = async (taskId: string) => {
+  const handleDeleteTask = async (id: string) => {
     if (!session) return;
     setIsLoading(true);
     try {
       await axios.post("/api/deltask", {
-        userId: session?.user?.id,
-        taskId,
+        id,
       });
       await fetchTasks();
       toast({
@@ -84,15 +82,14 @@ export const useTasks = (): UseTasksReturn   => {
     }
   };
 
-  const handleEditTask = async (taskId: string, taskData: FormData) => {
+  const handleEditTask = async (id: string, taskData: FormData) => {
     if (!session) return;
     setIsLoading(true);
     try {
       const formValues = Object.fromEntries(taskData);
       await axios.post("/api/updatetask", {
-        userId: session?.user?.id,
-        taskId,
-        task: formValues,
+        id,
+        ...formValues,
       });
       await fetchTasks();
       toast({

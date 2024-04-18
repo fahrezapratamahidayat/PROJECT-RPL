@@ -3,6 +3,7 @@ import CardTasks from "../card/cardTasks";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { greetings } from "@/hooks/greetings";
+import CardTeams from "../card/cardTeams";
 export default function HomePage() {
   return (
     <>
@@ -74,6 +75,7 @@ export default function HomePage() {
         <div className="w-full flex items-center gap-2">
           <CardTasks />
         </div>
+        <CardTeams />
       </main>
     </>
   );
