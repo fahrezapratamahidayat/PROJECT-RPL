@@ -31,7 +31,7 @@ export async function RegistersUsers(collectionName: string, data: any) {
         return {
             status: true,
             statusCode: 200,
-            message: "User created successfully"
+            message: "account created successfully"
         }
     } catch (error) {
         return {
@@ -51,7 +51,7 @@ export async function LoginUsers(email: string) {
         return {
             status: false,
             statusCode: 404,
-            message: "User not found",
+            message: "email not found",
         };
     }
 }

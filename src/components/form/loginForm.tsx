@@ -16,24 +16,23 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Label } from "../label/label";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { Checkbox } from "../ui/checkbox";
+import { useToast } from "../ui/use-toast";
 
 const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email.",
   }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
+  password: z.string().min(1, {
+    message: "Please enter your password.",
   }),
 });
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [toast, setToast] = useState(false);
   const { push } = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,7 +45,6 @@ export default function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { email, password } = values;
     setIsLoading(true);
-    setToast(false);
     const res = await signIn("credentials", {
       redirect: false,
       email,
@@ -56,20 +54,23 @@ export default function LoginForm() {
     if (!res?.error) {
       setIsLoading(false);
       form.reset;
+      toast({
+        title: "Success",
+        description: "Login successfully",
+        duration: 2000,
+        variant: "success",
+      });
       push("/home");
     } else {
       setIsLoading(false);
-      setToast(true);
-      setTimeout(() => {
-        setToast(false);
-      }, 6000);
+      toast({
+        title: "Ops!",
+        description: "Email or password incorrect!",
+        variant: "destructive",
+        duration: 2000,
+      });
     }
   }
-
-  const variants = {
-    open: { opacity: 1, y: [200, 100, 0] },
-    closed: { opacity: 0, y: 200 },
-  };
 
   return (
     <>
@@ -176,6 +177,12 @@ export default function LoginForm() {
           </svg>
           Google
         </Button>
+        <div className="mt-4 text-center text-sm">
+          Don&apos;t have an account?{" "}
+          <Link href="/auth/register" className="underline">
+            Sign up
+          </Link>
+        </div>
       </div>
     </>
   );

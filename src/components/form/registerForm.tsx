@@ -14,12 +14,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { useState } from "react";;
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import instance from "@/lib/axios/instance";
 import axios from "axios";
+import Link from "next/link";
+import { useToast } from "../ui/use-toast";
 
-const formSchema = z
+const formSchema: z.ZodType = z
   .object({
     fullname: z.string().min(2, {
       message: "Username must be at least 2 characters.",
@@ -40,6 +41,7 @@ const formSchema = z
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -58,12 +60,30 @@ export default function RegisterForm() {
       email,
       password,
     });
-    if(response.status === 200) {
+    if (response.data.statusCode === 200) {
       form.reset();
-      setIsLoading(false)
-      router.push("/auth/login")
-    }else{
-      setIsLoading(false)
+      toast({
+        title: "Success",
+        description: response.data.message,
+      })
+      setIsLoading(false);
+      router.push("/auth/login");
+    } else if (response.data.statusCode === 400) {
+      toast({
+        title: "Failed",
+        description: response.data.message,
+        variant: "destructive",
+        duration: 2000,
+      })
+      setIsLoading(false);
+    } else {
+      toast({
+        title: "Failed",
+        description: response.data.message,
+        variant: "destructive",
+        duration: 2000,
+      })
+      setIsLoading(false);
     }
   }
   return (
@@ -140,10 +160,18 @@ export default function RegisterForm() {
               Please wait
             </Button>
           ) : (
-            <Button className="w-full" type="submit">Sign Up</Button>
+            <Button className="w-full" type="submit">
+              Sign Up
+            </Button>
           )}
         </form>
       </Form>
+      <div className="mt-4 text-center text-sm">
+        Already have an account?{" "}
+        <Link href="/auth/login" className="underline">
+          Sign in
+        </Link>
+      </div>
     </>
   );
 }
