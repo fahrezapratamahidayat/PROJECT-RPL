@@ -128,7 +128,7 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               />
             ))}
           {message && message.length === 0 && (
-            <div className={`flex items-center gap-2 h-full`}>
+            <div className={`flex items-start gap-2 h-[80vh]`}>
               <h1>No Message</h1>
             </div>
           )}

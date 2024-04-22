@@ -57,17 +57,19 @@ export default function DialogFormAddTeam({
       leader: session?.user?.email,
       members: [session?.user?.email, ...data.members],
     })
-    if(respone.status === 200) {
+    if(respone.data.status) {
       setIsOpen(false)
       setIsLoading(false)
       toast({
         title: "Success",
         description: "Team created successfully",
+        duration: 2000
       })
     }else {
       toast({
         title: "Failed",
         description: "Failed to create team",
+        duration: 2000
       })
     }
   }

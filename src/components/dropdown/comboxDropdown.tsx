@@ -29,7 +29,6 @@ export function ComboboxDropdownMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
         <DropdownMenuGroup>
           <DropdownMenuItem className="" onClick={showDialogEdit}>
             <Pencil className="mr-2 h-4 w-4" />

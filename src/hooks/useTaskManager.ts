@@ -10,7 +10,6 @@ import { TasksData, addTask } from "@/types";
 interface UseTasksReturn {
     tasksList: TasksData[];
     isLoading: boolean;
-    formActive: boolean;
     handleTask: (taskData: addTask) => Promise<void>;
     handleDeleteTask: (taskId: string) => Promise<void>;
     handleEditTask: (taskId: string, taskData: FormData) => Promise<void>;
@@ -20,12 +19,11 @@ interface UseTasksReturn {
 export const useTasks = (): UseTasksReturn   => {
   const [tasksList, setTasksList] = useState<TasksData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [formActive, setFormActive] = useState(false);
   const { data: session } = useSession();
   const { toast } = useToast();
 
   const fetchTasks = useCallback(async () => {
-    if (!session) return;
+    if (!session?.user?.id) return;
     setIsLoading(true);
     try {
       const response = await axios.get(`/api/getTasks?user=${session?.user?.id}`);
@@ -35,7 +33,7 @@ export const useTasks = (): UseTasksReturn   => {
     }finally {
       setIsLoading(false);
     }
-  }, [session]);
+  }, [session?.user?.id]);
 
   const handleTask = async (taskData: addTask) => {
     if (!session) return;
@@ -49,14 +47,18 @@ export const useTasks = (): UseTasksReturn   => {
       toast({
         title: "Task Added",
         description: "Task has been added successfully",
+        duration: 2000,
       });
     } catch (error) {
       toast({
         title: "Failed to add task",
         description: "Failed to add task",
+        variant: "destructive",
+        duration: 2000,
       });
     }finally {
       setIsLoading(false);
+      await fetchTasks();
     }
   };
 
@@ -113,6 +115,5 @@ export const useTasks = (): UseTasksReturn   => {
     handleDeleteTask,
     handleEditTask,
     fetchTasks,
-    formActive,
   };
 };

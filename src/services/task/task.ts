@@ -1,8 +1,8 @@
 import { firestore } from "@/lib/firebase/init";
-import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { getDataByField } from "../auth/services";
-import { TasksData, addTask } from "@/types";
+import { TasksData } from "@/types";
 
 export async function randomId() {
     return uuidv4();

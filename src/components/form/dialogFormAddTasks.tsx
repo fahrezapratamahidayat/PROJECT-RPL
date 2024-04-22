@@ -43,11 +43,13 @@ export default function DialogFormAddTasks({
   setIsOpen,
   title,
   showTrigger = true,
+  onTaskAdded,
 }: {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   title: string;
   showTrigger?: false | true;
+  onTaskAdded?: () => void;
 }) {
   const { handleTask, isLoading } = useTasks();
   const [formStep, setFormStep] = useState(0);
@@ -84,6 +86,7 @@ export default function DialogFormAddTasks({
     setIsOpen(false);
     setFormStep(0);
     form.reset();
+    if (onTaskAdded) onTaskAdded();
   }
 
   const categoryListTask = [

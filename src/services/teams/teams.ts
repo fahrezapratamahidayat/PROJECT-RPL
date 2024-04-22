@@ -1,10 +1,10 @@
 import { firestore } from "@/lib/firebase/init";
 import { teamsData } from "@/types";
-import { addDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, where } from "firebase/firestore";
 
 
 export async function addTeams(teamsData: teamsData) {
-    if(teamsData.leader === undefined) {
+    if (teamsData.leader === undefined) {
         teamsData.leader = "";
     }
     try {
@@ -32,4 +32,22 @@ export function getTeams(email: string, callback: (teams: any[]) => void) {
         }));
         callback(teams);
     });
+}
+
+export async function deleteTeams(id: string) {
+    try {
+        const docRef = doc(firestore, "teams", id);
+        deleteDoc(docRef);
+        return {
+            status: true,
+            statusCode: 200,
+            message: "Teams deleted successfully",
+        };
+    } catch (error) {
+        return {
+            status: false,
+            statusCode: 403,
+            message: "something went wrong",
+        }
+    }
 }
