@@ -31,6 +31,7 @@ export default function CardTasks() {
     await handleEditTask(selectedTask.id, formData);
     setFormActive(false);
   };
+  
 
   useEffect(() => {
     fetchTasks();
@@ -63,6 +64,7 @@ export default function CardTasks() {
               setIsOpen={setModalOpen}
               title="Add Task"
               showTrigger={true}
+              onTaskAdded={fetchTasks}
             />
             <Button className="px-2" variant={"ghost"}>
               <GripVertical className="text-muted-foreground" />
