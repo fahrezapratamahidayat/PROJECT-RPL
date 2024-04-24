@@ -31,7 +31,6 @@ export default function CardTasks() {
     await handleEditTask(selectedTask.id, formData);
     setFormActive(false);
   };
-  
 
   useEffect(() => {
     fetchTasks();
@@ -56,9 +55,9 @@ export default function CardTasks() {
         onSubmit={handleEditTasks}
       />
       <CardTaskWrapper>
-        <CardTaskContainer className="flex items-center justify-between mr-1">
+        <CardTaskContainer className="flex items-center justify-between pr-0.5">
           <CardTaskHeader />
-          <DialogContainer className="flex items-center justify-between gap-2 ">
+          <DialogContainer className="flex items-center justify-between">
             <DialogAddTasks
               isOpen={modalOpen}
               setIsOpen={setModalOpen}
@@ -83,7 +82,7 @@ export default function CardTasks() {
             0 completed
           </Button>
         </div>
-        <div className="max-h-[320px] overflow-auto overflow-TaskList">
+        <div className="max-h-[320px] overflow-auto overflow-TaskList pr-1">
           {isLoading ? (
             <div className="flex justify-center items-center min-h-[280px] gap-1">
               <Loader2 className="animate-spin" />
@@ -102,6 +101,7 @@ export default function CardTasks() {
               return (
                 <ListTasks
                   key={task.id}
+                  link={task.id}
                   title={task.title}
                   description={task.description}
                   deadline={formattedDeadline}
