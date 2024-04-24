@@ -84,14 +84,14 @@ export default function CardTeams() {
         <h1 className="text-lg font-bold ">My Teams</h1>
         <p className="text-sm text-muted-foreground">Teams you are part of</p>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col mx-2">
         {isLoading ? (
           <div className="flex justify-center items-center max-h-[20vh] h-[20vh]">
             <Loader2 className="animate-spin" />
             <span>Loading...</span>
           </div>
         ) : teams.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-5 w-full">
+          <div className="grid gap-2 md:grid-cols-2 md:gap-8 lg:grid-cols-5 w-full">
             {teams.map((cardData) => (
               <CardTeam
                 key={cardData.id}
@@ -119,7 +119,7 @@ const CardTeam = ({
 }) => {
   return (
     <Card>
-      <CardHeader className="flex items-center flex-col w-full p-3">
+      <CardHeader className="flex items-center flex-col w-full px-3 py-2  ">
         <div className="w-full flex items-center justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
