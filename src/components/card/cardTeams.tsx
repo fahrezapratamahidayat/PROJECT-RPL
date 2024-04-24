@@ -48,8 +48,18 @@ export default function CardTeams() {
       setIsLoading(false);
     };
   }, [session?.user?.email]);
-  
+
   const handleDeleteTeam = async (id: string) => {
+    const team = teams.find((team) => team.id === id);
+    if (team?.leader !== session?.user?.email) {
+      toast({
+        title: "Failed",
+        description: "Only the team leader can delete the team",
+        duration: 2000,
+      });
+      return;
+    }
+
     const response = await axios.post("/api/delteam", {
       id: id,
     });
