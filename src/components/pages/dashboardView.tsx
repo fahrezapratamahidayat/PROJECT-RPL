@@ -4,7 +4,7 @@ import CardTasks from "../card/cardTasks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { greetings } from "@/hooks/greetings";
 import CardTeams from "../card/cardTeams";
-export default function HomePage() {
+export default function DashboardView() {
   return (
     <>
       <main className="py-7 px-3 lg:px-7 flex flex-col gap-4">

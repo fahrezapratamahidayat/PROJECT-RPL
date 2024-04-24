@@ -1,8 +1,6 @@
 "use client";
 
-import { ClipboardCheck } from "lucide-react";
-
-export default function CardHome({ icon, title, value }: { icon?: any, title: string, value: number }) {
+export default function CardDashboard({ icon, title, value }: { icon?: any, title: string, value: number }) {
   return (
     <>
       <div className="flex items-center gap-3">

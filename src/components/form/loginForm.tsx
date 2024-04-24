@@ -60,7 +60,7 @@ export default function LoginForm() {
         duration: 2000,
         variant: "success",
       });
-      push("/home");
+      push("/dashboard");
     } else {
       setIsLoading(false);
       toast({

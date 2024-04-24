@@ -17,13 +17,13 @@ export default function Sidebar() {
           <h1 className="text-2xl font-semibold">Task</h1>
           <div className="leading-6 space-y-3 py-10">
             <Link
-              href="/home"
+              href="/dashboard"
               className={`${
-                pathname === "/home" ? "bg-secondary" : ""
+                pathname === "/dashboard" ? "bg-secondary" : ""
               } flex items-center px-4 py-3 gap-5 hover:bg-secondary rounded-md font-semibold cursor-pointer`}
             >
               <Home className="h-5 w-5" />
-              <span className="text-sm">Home</span>
+              <span className="text-sm">Dashboard</span>
             </Link>
             <Link
               href="/projects"
