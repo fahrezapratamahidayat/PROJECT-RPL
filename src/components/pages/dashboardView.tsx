@@ -1,5 +1,5 @@
 import { Activity, CreditCard, DollarSign, Users } from "lucide-react";
-import CardTasks from "../card/cardTasks";
+import CardListTasks from "../card/cardListTasks";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { greetings } from "@/hooks/greetings";
@@ -73,7 +73,7 @@ export default function DashboardView() {
           </div>
         </div>
         <div className="w-full flex items-center gap-2">
-          <CardTasks />
+          <CardListTasks />
         </div>
         <CardTeams />
       </main>
