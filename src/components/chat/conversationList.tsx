@@ -1,8 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { DialogConversation } from "./dialogConversation";
+import { useEffect, useState } from "react";
 import ListChats from "./listChats";
 import {
   collection,
@@ -16,18 +15,26 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase/init";
 import { useSession } from "next-auth/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface User {
   id: string;
   email: string;
   fullname: string;
-  // Tambahkan properti lain sesuai kebutuhan
 }
 
 interface Chatroom {
   id: string;
   users: string[];
-  // Tambahkan properti lain sesuai kebutuhan
 }
 
 export default function ConverSationList({
@@ -42,12 +49,15 @@ export default function ConverSationList({
   const [querySearch, setQuerySearch] = useState("");
   const [usersList, setUserList] = useState<User[]>([]);
   const [chatrooms, setChatrooms] = useState<User[]>([]);
-
+  const [activeTab, setActiveTab] = useState("inbox");
   useEffect(() => {
     if (!session?.user?.id) return;
 
     const fetchUsers = () => {
-      let usersQuery = query(collection(firestore, "users"), orderBy("fullname", "asc"));
+      let usersQuery = query(
+        collection(firestore, "users"),
+        orderBy("fullname", "asc")
+      );
       if (querySearch !== "") {
         usersQuery = query(usersQuery, where("fullname", ">=", querySearch));
       }
@@ -60,20 +70,31 @@ export default function ConverSationList({
     };
 
     const fetchChatrooms = async () => {
-      const chatroomQuery = query(collection(firestore, "chatrooms"), where("users", "array-contains", session.user?.id));
+      const chatroomQuery = query(
+        collection(firestore, "chatrooms"),
+        where("users", "array-contains", session.user?.id)
+      );
       const chatroomQuerySnapshot = await getDocs(chatroomQuery);
-      const chatroomsData = chatroomQuerySnapshot.docs.map((doc) => doc.data() as Chatroom);
+      const chatroomsData = chatroomQuerySnapshot.docs.map(
+        (doc) => doc.data() as Chatroom
+      );
 
       const usersDataPromises = chatroomsData.map(async (chatroom) => {
         return Promise.all(
-          chatroom.users.filter((userId) => userId !== session.user?.id).map(async (userId) => {
-            const userDoc = await getDoc(doc(firestore, "users", userId));
-            return userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as User : null;
-          })
+          chatroom.users
+            .filter((userId) => userId !== session.user?.id)
+            .map(async (userId) => {
+              const userDoc = await getDoc(doc(firestore, "users", userId));
+              return userDoc.exists()
+                ? ({ id: userDoc.id, ...userDoc.data() } as User)
+                : null;
+            })
         );
       });
 
-      const usersData = (await Promise.all(usersDataPromises)).flat().filter((user): user is User => user !== null);
+      const usersData = (await Promise.all(usersDataPromises))
+        .flat()
+        .filter((user): user is User => user !== null);
       setChatrooms(usersData);
     };
 
@@ -102,22 +123,53 @@ export default function ConverSationList({
             <span className="sr-only">More</span>
           </Button>
         </div>
-        <DialogConversation
-          open={open}
-          setOpen={setOpen}
-          onChange={(e: any) => setQuerySearch(e.target.value)}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="text-center text-sm gap-1 mt-5">
+              <Plus className="" /> Create chat
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[450px]">
+            <DialogHeader className="gap-3">
+              <DialogTitle>Start new chat</DialogTitle>
+            </DialogHeader>
+            <div className="">
+              <Input
+                type="text"
+                placeholder="Search"
+                onChange={(e: any) => setQuerySearch(e.target.value)}
+                className="drop-shadow-lg shadow-lg z-10"
+              />
+              <div className="max-h-[250px] overflow-y-auto overflow-x-hidden overflow-message">
+                <div className="overflow-hidden space-y-2 mt-5">
+                  {open &&
+                    usersList.map((user) => (
+                      <ListChats key={user.id} showMessage={true} data={user} />
+                    ))}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-[400px] mt-1"
         >
-          {open &&
-            usersList.map((user) => (
-              <ListChats key={user.id} showMessage={true} data={user} />
-            ))}
-        </DialogConversation>
-        <div className="flex flex-col gap-4 space-y-2 space-x-1 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden">
-          {/* LIST PEOPLES CHAT WITH USER HERE */}
-          {chatrooms.map((user) => (
-            <ListChats key={user.id} data={user} slug={slug} />
-          ))}
-        </div>
+          <TabsList className="bg-transparent">
+            <TabsTrigger value="inbox">Inbox</TabsTrigger>
+            <TabsTrigger value="group">Group</TabsTrigger>
+          </TabsList>
+          <TabsContent value="inbox">
+            <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden">
+              {/* LIST PEOPLES CHAT WITH USER HERE */}
+              {chatrooms.map((user) => (
+                <ListChats key={user.id} data={user} slug={slug} />
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="group">dont have group</TabsContent>
+        </Tabs>
       </div>
     </>
   );
