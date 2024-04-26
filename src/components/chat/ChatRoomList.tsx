@@ -85,8 +85,8 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
   return (
     <>
-      <div className="relative flex flex-col gap-1 rounded-lg border lg:h-[84vh]  lg:w-[68%] w-full">
-        <div className="flex items-center border-b py-2 lg:px-5 px-3 gap-2 bg-muted ">
+      <div className="flex flex-col gap-1 rounded-lg border lg:h-[84vh] md-h-[84vh] sm:h-[84vh] h-screen lg:w-[68%] w-full">
+        <header className="flex items-center border-b py-2 lg:px-5 px-3 gap-2 bg-muted">
           <Button variant={"ghost"} onClick={() => router.back()} size={"icon"}>
             <ArrowLeft className="" />
             <span className="sr-only">Back</span>
@@ -105,8 +105,8 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               </span> */}
             </div>
           </div>
-        </div>
-        <div className="flex flex-col justify-between gap-5 pt-3 mb-20 lg:pb-3 px-5 lg:max-h-[480px] max-h-[80vh] overflow-y-auto overflow-x-hidden overflow-message">
+        </header>
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 overflow-message">
           {/* MESSAGE DISINi */}
           {message &&
             message.length > 0 &&
@@ -133,13 +133,13 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             </div>
           )}
         </div>
-        <div className="absolute bottom-0 w-full px-5 py-5">
+        <div className="w-full px-5 py-5 shadow-lg rounded-t-lg drop-shadow backdrop-blur-md">
           <form className="" onSubmit={handleMessageSubmit}>
-            <div className="relative flex h-full flex-1 flex-col">
-              <div className="flex w-full rounded-md items-center border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <div className="flex items-center justify-between w-full gap-5">
+              <div className="w-full">
                 <Textarea
-                  placeholder="Messages"
-                  className="flex h-[50px] max-h-[200px] min-h-0 items-center ring-transparent ring-offset-transparent border-transparent px-3 resize-none m-0 w-full border-0 bg-transparent focus:ring-0 focus-visible:ring-0 dark:bg-transparent py-[10px] pr-[1rem] md:py-3.5 md:pr-[4rem] placeholder-black/50 dark:placeholder-white/50 pl-3 md:pl-4  overflow-message"
+                  placeholder="Type your message..."
+                  className="flex h-[50px] max-h-[200px] min-h-0 items-center px-3 resize-none m-0 w-full dark:bg-transparent py-[10px] pr-[1rem] md:py-3.5 md:pr-[4rem] placeholder-black/50 dark:placeholder-white/50 pl-3 md:pl-4  overflow-message"
                   id="message"
                   name="message"
                   rows={1}
@@ -152,16 +152,16 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     textarea.style.height = `${textarea.scrollHeight}px`;
                   }}
                 />
-                <Button
+              </div>
+              <Button
                   size="icon"
-                  className="absolute right-3 bottom-1.5 rounded-lg"
+                  className="rounded-lg"
                   type="submit"
                   disabled={messageInput.length < 1}
                 >
                   <SendIcon />
                   <span className="sr-only">Send message</span>
                 </Button>
-              </div>
             </div>
           </form>
         </div>
