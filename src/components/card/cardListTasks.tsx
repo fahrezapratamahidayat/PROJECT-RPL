@@ -84,7 +84,7 @@ export default function CardListTasks() {
         </div>
         <div className="max-h-[320px] overflow-auto overflow-TaskList pr-1">
           {isLoading ? (
-            <div className="flex justify-center items-center min-h-[280px] gap-1">
+            <div className="flex justify-center items-center min-h-[12vh] gap-1">
               <Loader2 className="animate-spin" />
               <span>Loading...</span>
             </div>
@@ -122,7 +122,7 @@ export default function CardListTasks() {
               );
             })
           ) : (
-            <div className="flex justify-center items-center min-h-[280px]">
+            <div className="flex justify-center items-center min-h-[12vh]">
               <span>Tidak ada data</span>
             </div>
           )}
