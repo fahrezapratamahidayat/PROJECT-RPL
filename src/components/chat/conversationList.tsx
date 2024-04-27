@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
 import { useEffect, useState } from "react";
-import ListChats from "./listChats";
+import ListUsers from "./listUsers";
 import {
   collection,
   doc,
@@ -50,6 +50,7 @@ export default function ConverSationList({
   const [usersList, setUserList] = useState<User[]>([]);
   const [chatrooms, setChatrooms] = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState("inbox");
+
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -144,7 +145,7 @@ export default function ConverSationList({
                 <div className="overflow-hidden space-y-2 mt-5">
                   {open &&
                     usersList.map((user) => (
-                      <ListChats key={user.id} showMessage={true} data={user} />
+                      <ListUsers key={user.id} showMessage={true} data={user} />
                     ))}
                 </div>
               </div>
@@ -164,7 +165,7 @@ export default function ConverSationList({
             <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden">
               {/* LIST PEOPLES CHAT WITH USER HERE */}
               {chatrooms.map((user) => (
-                <ListChats key={user.id} data={user} slug={slug} />
+                <ListUsers key={user.id} data={user} slug={slug} />
               ))}
             </div>
           </TabsContent>

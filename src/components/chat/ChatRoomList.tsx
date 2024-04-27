@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Textarea } from "../ui/textarea";
@@ -9,61 +9,94 @@ import { ArrowLeft, SendIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { getMessages, getOrCreateChatRoom, sendMessage } from "@/hooks/useChattings";
+import {
+  getMessages,
+  getOrCreateChatRoom,
+  sendMessage,
+} from "@/hooks/useChattings";
+import { collection, doc, getDoc } from "firebase/firestore";
+import { firestore } from "@/lib/firebase/init";
 
-export default function ChatRoomList({
-  data,
-  slug,
-}: {
-  data: any;
-  slug: string;
-}) {
+type User = {
+  id: string;
+  fullname: string;
+  email: string;
+  idp: string;
+  created_At: Date;
+  profileUrl: string;
+};
+
+export default function ChatRoomList({ slug }: { slug: string }) {
   const [messageInput, setMessageInput] = React.useState<string>("");
   const { data: session }: { data: any } = useSession();
-  const [chatroom, setChatroom] = useState([] as any)
+  const [chatroom, setChatroom] = useState([] as any);
   const [message, setMessages] = useState([] as any);
   const router = useRouter();
 
-useEffect(() => {
-  const getChatRoom = async () => {
-    if (!session) return;
+  const [userChats, setUserChats] = useState({} as User);
+
+  useEffect(() => {
+    const fetchUserById = async () => {
+      try {
+        const userDocRef = doc(collection(firestore, "users"), slug);
+        const userDocSnapshot = await getDoc(userDocRef);
+
+        if (userDocSnapshot.exists()) {
+          const userData: any = {
+            id: userDocSnapshot.id,
+            ...userDocSnapshot.data(),
+          };
+          setUserChats(userData);
+        } else {
+        }
+      } catch (error) {
+        console.error("Error fetching user document:", error);
+      }
+    };
+
+    fetchUserById();
+  }, [slug]);
+
+  useEffect(() => {
+    const getChatRoom = async () => {
+      if (!session) return;
+      const { user } = session;
+
+      try {
+        const users = [user.id, slug];
+        const chatRoom = await getOrCreateChatRoom(users, "direct");
+        setChatroom(chatRoom);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getChatRoom();
+  }, [session, slug]);
+
+  useEffect(() => {
+    if (!chatroom.id) return;
+
+    const fetchMessages = async () => {
+      const loadedMessages = await getMessages(chatroom.id);
+      setMessages(loadedMessages);
+    };
+
+    fetchMessages();
+  }, [chatroom.id]);
+
+  const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!session || !messageInput || !chatroom.id) return;
     const { user } = session;
 
     try {
-      const users = [user.id, slug];
-      const chatRoom = await getOrCreateChatRoom(users, "direct");
-      setChatroom(chatRoom);
+      await sendMessage(chatroom.id, messageInput, user.id);
+      setMessageInput("");
+      (e.target as HTMLFormElement).reset();
     } catch (error) {
-      console.error(error);
+      console.error("Error sending message:", error);
     }
   };
-  getChatRoom();
-}, [session, slug]);
-
-useEffect(() => {
-  if (!chatroom.id) return;
-
-  const fetchMessages = async () => {
-    const loadedMessages = await getMessages(chatroom.id);
-    setMessages(loadedMessages);
-  };
-
-  fetchMessages();
-}, [chatroom.id]);
-
-const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  if (!session || !messageInput || !chatroom.id) return;
-  const { user } = session;
-
-  try {
-    await sendMessage(chatroom.id, messageInput, user.id);
-    setMessageInput("");
-    (e.target as HTMLFormElement).reset();
-  } catch (error) {
-    console.error("Error sending message:", error);
-  }
-};
 
   function timeStapHandle(item: any) {
     const timestamp = new Date(item.timestamp);
@@ -94,12 +127,12 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           <div className="flex items-center gap-2">
             <Avatar>
               <AvatarImage
-                src={data.profileUrl || "https://github.com/shadcn.png"}
+                src={userChats.profileUrl || "https://github.com/shadcn.png"}
               />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="flex flex-col pl-1">
-              <h1 className="text-base font-semibold">{data.fullname}</h1>
+              <h1 className="text-base font-semibold">{userChats.fullname}</h1>
               {/* <span className="text-sm text-muted-foreground">
                 {data.email}
               </span> */}
@@ -107,7 +140,6 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           </div>
         </header>
         <div className="flex-1 overflow-y-auto p-6 space-y-4 overflow-message">
-          {/* MESSAGE DISINi */}
           {message &&
             message.length > 0 &&
             message.map((item: any) => (
@@ -115,7 +147,7 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                 profileUrl={
                   item.sender === session?.user?.id
                     ? session.user.profileUrl
-                    : data.profileUrl
+                    : userChats.profileUrl
                 }
                 key={item.id}
                 message={item.message}
@@ -154,14 +186,14 @@ const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                 />
               </div>
               <Button
-                  size="icon"
-                  className="rounded-lg"
-                  type="submit"
-                  disabled={messageInput.length < 1}
-                >
-                  <SendIcon />
-                  <span className="sr-only">Send message</span>
-                </Button>
+                size="icon"
+                className="rounded-lg"
+                type="submit"
+                disabled={messageInput.length < 1}
+              >
+                <SendIcon />
+                <span className="sr-only">Send message</span>
+              </Button>
             </div>
           </form>
         </div>
