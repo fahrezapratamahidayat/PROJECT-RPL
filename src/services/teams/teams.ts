@@ -1,6 +1,6 @@
 import { firestore } from "@/lib/firebase/init";
 import { teamsData } from "@/types";
-import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 
 
 export async function addTeams(teamsData: teamsData) {
@@ -49,5 +49,41 @@ export async function deleteTeams(id: string) {
             statusCode: 403,
             message: "something went wrong",
         }
+    }
+}
+
+
+export async function leaveTeam(teamId: string, email: string, callback: (success: boolean) => void) {
+    try {
+        const teamRef = doc(firestore, "teams", teamId);
+        const teamData = await getDoc(teamRef);
+        if(teamData.exists()){
+            const members = teamData.data().members;
+            const index = members.findIndex((member: string) => member === email);
+            members.splice(index, 1);
+
+            await updateDoc(teamRef, {
+                members: members
+            });
+
+            callback(true);
+        } else {
+            callback(false);
+        }
+    } catch (error: any) {
+        callback(false);
+    }
+}
+
+export async function addMembers(teamId: string, email: string, callback: (success: boolean) => void) {
+    try {
+        const teamRef = doc(firestore, "teams", teamId);
+        const teamData = await getDoc(teamRef);
+        if(teamData.exists()){
+            const members = teamData.data().members;
+            members.push(email);
+        }
+    } catch (error: any) {
+        callback(false);
     }
 }
