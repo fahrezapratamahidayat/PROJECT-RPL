@@ -3,7 +3,6 @@ import ConverSationList from "@/components/chat/conversationList";
 import ChatPanelLayout from "@/components/layouts/chatPanelLayout";
 import Navbar from "@/components/navigation/navbar";
 import Sidebar from "@/components/navigation/sidebar";
-import React from "react";
 
 export default function PageChats() {
   return (
