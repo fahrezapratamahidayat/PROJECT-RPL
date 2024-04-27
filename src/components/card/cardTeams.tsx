@@ -1,9 +1,9 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Ellipsis, Loader2, Trash } from "lucide-react";
+import { Ellipsis, Loader2, LogOut, Trash } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
-import { getTeams } from "@/services/teams/teams";
+import { getTeams, leaveTeam } from "@/services/teams/teams";
 import { useSession } from "next-auth/react";
 import { Button } from "../ui/button";
 import {
@@ -15,7 +15,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import axios from "axios";
 import { useToast } from "../ui/use-toast";
-import { useTasks } from "@/hooks/useTaskManager";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type teamsDataType = {
   id: string;
@@ -31,7 +41,12 @@ export default function CardTeams() {
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
   const { toast } = useToast();
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<teamsDataType>(
+    {} as teamsDataType
+  );
+  const [actionType, setActionType] = useState<"delete" | "leave" | null>(null);
+  console.log(selectedTeam);
   useEffect(() => {
     if (!session?.user?.email) {
       setIsLoading(false);
@@ -48,6 +63,15 @@ export default function CardTeams() {
       setIsLoading(false);
     };
   }, [session?.user?.email]);
+  const confirmAction = () => {
+    if (actionType === "delete") {
+      handleDeleteTeam(selectedTeam.id);
+    } else if (actionType === "leave") {
+      handleLeaveTeam(selectedTeam.id);
+    }
+    setOpenDialog(false);
+    setActionType(null);
+  };
 
   const handleDeleteTeam = async (id: string) => {
     const team = teams.find((team) => team.id === id);
@@ -63,7 +87,6 @@ export default function CardTeams() {
     const response = await axios.post("/api/delteam", {
       id: id,
     });
-    console.log(response);
     if (response.data.status) {
       toast({
         title: "Success",
@@ -78,44 +101,114 @@ export default function CardTeams() {
       });
     }
   };
+
+  const handleLeaveTeam = (id: string) => {
+    if (!session?.user?.email) return;
+
+    if (session?.user?.email === selectedTeam.leader) {
+      toast({
+        title: "Failed",
+        description: "You are the leader of the team",
+        duration: 2000,
+      });
+      return;
+    }
+    leaveTeam(
+      id,
+      session?.user?.email && session?.user?.email,
+      (success: boolean) => {
+        if (success) {
+          toast({
+            title: "Success",
+            description: "Team left successfully",
+            duration: 2000,
+          });
+        } else {
+          toast({
+            title: "Failed",
+            description: "Failed to leave team",
+            duration: 2000,
+          });
+        }
+      }
+    );
+  };
+
   return (
-    <div className="border flex flex-col justify-center px-3 py-3 gap-3 rounded-lg w-full">
-      <div className="flex flex-col">
-        <h1 className="text-lg font-bold ">My Teams</h1>
-        <p className="text-sm text-muted-foreground">Teams you are part of</p>
+    <>
+      <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {actionType === "delete" ? "Hapus Tim" : "Keluar dari Tim"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {actionType === "delete"
+                ? "Apakah Anda yakin ingin menghapus tim ini?"
+                : "Apakah Anda yakin ingin keluar dari tim ini?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setSelectedTeam({} as teamsDataType)}
+            >
+              batal
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmAction}>
+              Lanjut
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <div className="border flex flex-col justify-center px-3 py-3 gap-3 rounded-lg w-full">
+        <div className="flex flex-col">
+          <h1 className="text-lg font-bold ">My Teams</h1>
+          <p className="text-sm text-muted-foreground">Teams you are part of</p>
+        </div>
+        <div className="flex flex-col mx-2">
+          {isLoading ? (
+            <div className="flex justify-center items-center min-h-[12vh] h-[12vh]">
+              <Loader2 className="animate-spin" />
+              <span>Loading...</span>
+            </div>
+          ) : teams.length > 0 ? (
+            <div className="grid gap-2 md:grid-cols-2 md:gap-8 lg:grid-cols-5 w-full">
+              {teams.map((cardData) => (
+                <CardTeam
+                  key={cardData.id}
+                  cardData={cardData}
+                  onClickLeave={() => {
+                    setSelectedTeam(cardData);
+                    setActionType("leave");
+                    setOpenDialog(true);
+                  }}
+                  onCLickDelete={() => {
+                    setSelectedTeam(cardData);
+                    setActionType("delete");
+                    setOpenDialog(true);
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center items-center min-h-[12vh] h-[12vh]">
+              <span>Kamu Belum Ada team</span>
+            </div>
+          )}
+        </div>
       </div>
-      <div className="flex flex-col mx-2">
-        {isLoading ? (
-          <div className="flex justify-center items-center max-h-[20vh] h-[20vh]">
-            <Loader2 className="animate-spin" />
-            <span>Loading...</span>
-          </div>
-        ) : teams.length > 0 ? (
-          <div className="grid gap-2 md:grid-cols-2 md:gap-8 lg:grid-cols-5 w-full">
-            {teams.map((cardData) => (
-              <CardTeam
-                key={cardData.id}
-                cardData={cardData}
-                onCLick={() => handleDeleteTeam(cardData.id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex justify-center items-center max-h-[20vh] h-[20vh]">
-            <span>Kamu Belum Ada team</span>
-          </div>
-        )}
-      </div>
-    </div>
+    </>
   );
 }
 
 const CardTeam = ({
   cardData,
-  onCLick,
+  onCLickDelete,
+  onClickLeave,
 }: {
   cardData: teamsDataType;
-  onCLick?: () => void;
+  onCLickDelete: () => void;
+  onClickLeave: () => void;
 }) => {
   return (
     <Card>
@@ -129,9 +222,16 @@ const CardTeam = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuGroup>
-                <DropdownMenuItem className="text-red-600" onClick={onCLick}>
+                <DropdownMenuItem
+                  className=""
+                  onClick={onCLickDelete}
+                >
                   <Trash className="mr-2 h-4 w-4" />
                   Delete
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onClickLeave}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Leave
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
