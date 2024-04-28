@@ -61,6 +61,7 @@ interface MultiSelectFormFieldProps
   placeholder: string;
   className?: string;
   animation?: number;
+  popoperClassName?: string;
   onValueChange: (value: string[]) => void;
 }
 
@@ -78,6 +79,7 @@ const MultiSelectFormField = React.forwardRef<
       onValueChange,
       disabled,
       placeholder,
+      popoperClassName,
       animation = 0,
       ...props
     },
@@ -188,7 +190,10 @@ const MultiSelectFormField = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[200px] p-0 drop-shadow-sm"
+          className={cn(
+            "w-[200px] p-0 drop-shadow-sm",
+            popoperClassName
+          )}
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
           onInteractOutside={(event) => {
