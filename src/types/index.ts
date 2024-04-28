@@ -71,6 +71,8 @@ export interface ChatRoom {
   created_at: Date;
   type: string;
   users: string[];
+  name?: string;
+  usersString: string;
 }
 export interface Message {
   id?: string;
