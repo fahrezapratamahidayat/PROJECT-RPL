@@ -6,14 +6,14 @@ import MessageCard from "./messageCard";
 import { id } from "date-fns/locale";
 import { Button } from "../ui/button";
 import { ArrowLeft, SendIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   getMessages,
   getOrCreateChatRoom,
   sendMessage,
-} from "@/hooks/useChattings";
+} from "@/services/chatting/chattings";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase/init";
 
@@ -32,6 +32,8 @@ export default function ChatRoomList({ slug }: { slug: string }) {
   const [chatroom, setChatroom] = useState([] as any);
   const [message, setMessages] = useState([] as any);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type')
 
   const [userChats, setUserChats] = useState({} as User);
 
@@ -57,21 +59,22 @@ export default function ChatRoomList({ slug }: { slug: string }) {
     fetchUserById();
   }, [slug]);
 
-  useEffect(() => {
-    const getChatRoom = async () => {
-      if (!session) return;
-      const { user } = session;
 
-      try {
-        const users = [user.id, slug];
-        const chatRoom = await getOrCreateChatRoom(users, "direct");
-        setChatroom(chatRoom);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getChatRoom();
-  }, [session, slug]);
+  const getChatRooms = useCallback(async () => {
+    if (!session) return;
+    const { user } = session;
+    if(type === 'direct'){
+      const users = [user.id, slug];
+      const chatRoom = await getOrCreateChatRoom(users, "direct");
+      setChatroom(chatRoom);
+    }
+  }, [session, slug, type]);
+
+  useEffect(() => {
+
+    getChatRooms();
+  }, [getChatRooms]);
+  console.log(chatroom)
 
   useEffect(() => {
     if (!chatroom.id) return;
@@ -115,7 +118,6 @@ export default function ChatRoomList({ slug }: { slug: string }) {
     const modifiedDistance = distanceArray.join(" "); // Gabungkan kembali array
     return modifiedDistance;
   }
-
   return (
     <>
       <div className="flex flex-col gap-1 rounded-lg border lg:h-[84vh] md-h-[84vh] sm:h-[84vh] h-screen lg:w-[68%] w-full">

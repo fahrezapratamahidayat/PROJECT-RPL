@@ -46,7 +46,6 @@ export default function CardTeams() {
     {} as teamsDataType
   );
   const [actionType, setActionType] = useState<"delete" | "leave" | null>(null);
-  console.log(selectedTeam);
   useEffect(() => {
     if (!session?.user?.email) {
       setIsLoading(false);
