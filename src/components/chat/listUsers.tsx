@@ -13,7 +13,7 @@ export default function ListUsers({
 }) {
   return (
     <>
-      <Link href={`/chats/${data.id}`}>
+      <Link href={`/chats/${data.id}?type=direct`}>
         <div
           className={`${
             data.id === slug ? "bg-muted" : ""
