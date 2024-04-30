@@ -75,11 +75,11 @@ export default function ConverSationList({
     }
     return onSnapshot(usersQuery, (snapshot) => {
       const fetchedUsers = snapshot.docs
-        .filter((doc) => doc.id !== session?.user?.id)
+        .filter((doc) => doc.id !== undefined)
         .map((doc) => ({ id: doc.id, ...doc.data() } as User));
       setUserList(fetchedUsers);
     });
-  }, [querySearch, session?.user?.id]);
+  }, [querySearch]);
 
   const fetchDetailRoom = useCallback(async () => {
     setChatrooms([]);
@@ -132,7 +132,6 @@ export default function ConverSationList({
     setChatrooms([]);
   }, [activeTab]);
 
-  
   const uniqueUsers = useMemo(() => {
     const allUsers = new Set<User>();
     chatrooms.forEach((chatroom) => {
@@ -142,7 +141,7 @@ export default function ConverSationList({
     });
     return Array.from(allUsers);
   }, [chatrooms]);
-
+  
   return (
     <>
       <div
@@ -199,17 +198,13 @@ export default function ConverSationList({
             )}
           </DialogContent>
         </Dialog>
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-[400px] mt-1"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-1">
           <TabsList className="bg-transparent">
             <TabsTrigger value="direct">Inbox</TabsTrigger>
             <TabsTrigger value="group">Group</TabsTrigger>
           </TabsList>
           <TabsContent value="direct">
-            <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden">
+            <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden w-full">
               {/* LIST PEOPLES CHAT WITH USER HERE */}
               {uniqueUsers.map((user) => (
                 <ListUsers key={user.id} data={user} slug={slug} />
@@ -217,6 +212,7 @@ export default function ConverSationList({
             </div>
           </TabsContent>
           <TabsContent value="group">
+            {/* LIST GROUP CHAT HERE */}
             {chatrooms.map(
               (chatroom) =>
                 chatroom.type === "group" && (

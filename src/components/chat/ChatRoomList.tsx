@@ -33,7 +33,7 @@ export default function ChatRoomList({ slug }: { slug: string }) {
   const [message, setMessages] = useState([] as any);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const type = searchParams.get('type')
+  const type = searchParams.get("type");
 
   const [userChats, setUserChats] = useState({} as User);
 
@@ -59,22 +59,32 @@ export default function ChatRoomList({ slug }: { slug: string }) {
     fetchUserById();
   }, [slug]);
 
-
   const getChatRooms = useCallback(async () => {
     if (!session) return;
     const { user } = session;
-    if(type === 'direct'){
+    if (type === "direct") {
       const users = [user.id, slug];
-      const chatRoom = await getOrCreateChatRoom(users, "direct");
+      const chatRoom = await getOrCreateChatRoom(
+        users,
+        "direct",
+        undefined,
+        undefined
+      );
+      setChatroom(chatRoom);
+    } else if (type === "group") {
+      const chatRoom = await getOrCreateChatRoom(
+        [user.id],
+        "group",
+        undefined,
+        undefined
+      );
       setChatroom(chatRoom);
     }
   }, [session, slug, type]);
 
   useEffect(() => {
-
     getChatRooms();
   }, [getChatRooms]);
-  console.log(chatroom)
 
   useEffect(() => {
     if (!chatroom.id) return;
@@ -118,6 +128,10 @@ export default function ChatRoomList({ slug }: { slug: string }) {
     const modifiedDistance = distanceArray.join(" "); // Gabungkan kembali array
     return modifiedDistance;
   }
+
+  // console.log("messgae",message);
+  // console.log("users chats", userChats);
+  // console.log("chatroom", chatroom);
   return (
     <>
       <div className="flex flex-col gap-1 rounded-lg border lg:h-[84vh] md-h-[84vh] sm:h-[84vh] h-screen lg:w-[68%] w-full">
@@ -134,7 +148,9 @@ export default function ChatRoomList({ slug }: { slug: string }) {
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="flex flex-col pl-1">
-              <h1 className="text-base font-semibold">{userChats.fullname}</h1>
+              <h1 className="text-base font-semibold">
+                {type === "direct" ? userChats.fullname : chatroom.name}
+              </h1>
               {/* <span className="text-sm text-muted-foreground">
                 {data.email}
               </span> */}

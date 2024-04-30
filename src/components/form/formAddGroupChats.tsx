@@ -45,25 +45,32 @@ export default function FormAddGroupChats() {
   });
 
   async function onSubmit(data: Inputs) {
-    if(!session?.user?.id) return;
+    if (!session?.user?.id) return;
     const { user } = session;
     try {
-        const members = [user.id, ...data.members].filter(id => id !== undefined) as string[];
-        const chatRoom = await getOrCreateChatRoom(members, 'group', data.name);
-        toast({
-          title: "Success",
-          description: "Group created successfully",
-          duration: 2000
-        })
-        form.reset();
-        console.log(chatRoom);
-        router.push(`/chats/${chatRoom.id}?type=group`);
+      const members = [user.id, ...data.members].filter(
+        (member): member is string => member !== undefined
+      );
+      const chatRoom = await getOrCreateChatRoom(
+        members,
+        "group",
+        data.name,
+        undefined
+      );
+      toast({
+        title: "Success",
+        description: "Group created successfully",
+        duration: 2000,
+      });
+      form.reset();
+      console.log(chatRoom);
+      router.push(`/chats/${chatRoom?.id}?type=group`);
     } catch (error) {
-        toast({
-          title: "Failed",
-          description: "Failed to create group",
-          duration: 2000
-        })
+      toast({
+        title: "Failed",
+        description: "Failed to create group",
+        duration: 2000,
+      });
     }
   }
   const usersList = useFetchUsers(querySearch);
