@@ -141,7 +141,7 @@ export default function ConverSationList({
     });
     return Array.from(allUsers);
   }, [chatrooms]);
-  
+
   return (
     <>
       <div
@@ -212,13 +212,18 @@ export default function ConverSationList({
             </div>
           </TabsContent>
           <TabsContent value="group">
-            {/* LIST GROUP CHAT HERE */}
-            {chatrooms.map(
-              (chatroom) =>
-                chatroom.type === "group" && (
-                  <AvatarGroup key={chatroom.id} data={chatroom} slug={slug} />
-                )
-            )}
+            <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden w-full">
+              {chatrooms.map(
+                (chatroom) =>
+                  chatroom.type === "group" && (
+                    <AvatarGroup
+                      key={chatroom.id}
+                      data={chatroom}
+                      slug={slug}
+                    />
+                  )
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
