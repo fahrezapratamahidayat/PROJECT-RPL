@@ -59,7 +59,7 @@ export default function Navbar({ className }: { className?: string }) {
                   <span className="text-sm">Chats</span>
                 </Link>
                 <Link
-                  href="/"
+                  href="/calender"
                   className={`${
                     pathname === "/timeline" ? "bg-secondary" : ""
                   } flex items-center px-4 py-3 gap-5 hover:bg-secondary rounded-md font-semibold cursor-pointer`}
