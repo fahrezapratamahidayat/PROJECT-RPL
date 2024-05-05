@@ -336,7 +336,7 @@ export default function DialogFormAddTasks({
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Frameworks</FormLabel>
+                        <FormLabel>Category</FormLabel>
                         <FormControl>
                           <MultiSelectFormField
                             options={categoryListTask}

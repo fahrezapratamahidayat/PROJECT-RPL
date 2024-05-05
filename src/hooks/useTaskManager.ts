@@ -36,7 +36,14 @@ export const useTasks = (): UseTasksReturn   => {
   }, [session?.user?.id]);
 
   const handleTask = async (taskData: addTask) => {
-    if (!session) return;
+    if (!session) {
+      toast({
+        title: "Failed to add task",
+        description: "Failed to add task",
+        variant: "destructive",
+        duration: 2000,
+      })
+    };
     setIsLoading(true);
     try {
       await axios.post("/api/addtask", {
