@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "../ui/textarea";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -35,6 +35,9 @@ import MultiSelectFormField from "../ui/multi-select";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { addTask } from "@/types";
+import { useSession } from "next-auth/react";
+import { getTeams } from "@/services/teams/teams";
+import { useTeamsData } from "@/hooks/useTeams";
 
 type Inputs = z.infer<typeof schemaAddTasksExtended>;
 
@@ -53,6 +56,7 @@ export default function DialogFormAddTasks({
 }) {
   const { handleTask, isLoading } = useTasks();
   const [formStep, setFormStep] = useState(0);
+  const { data: session } = useSession();
 
   const form = useForm<Inputs>({
     resolver: zodResolver(schemaAddTasksExtended),
@@ -63,11 +67,15 @@ export default function DialogFormAddTasks({
       dueDate: "",
       dueTime: "",
       priority: undefined,
-      assigned: "",
+      assigned: [],
       notes: "",
       category: [],
     },
   });
+
+  const typeTask = form.watch("typeTask");
+  const teams = useTeamsData(session?.user?.email, typeTask);
+  console.log(teams);
 
   async function onSubmit(data: Inputs) {
     const taskData: addTask = {
@@ -77,12 +85,14 @@ export default function DialogFormAddTasks({
       dueDate: data.dueDate,
       dueTime: data.dueTime,
       priority: data.priority,
-      assigned: data.assigned || "",
+      assigned: data.assigned || [],
       notes: data.notes,
-      category: data.category,
+      category: data.category || [],
     };
-  
-    await handleTask(taskData);
+    if (data.typeTask === "teams") {
+      alert(JSON.stringify(data, null, 4));
+    }
+    // await handleTask(taskData);
     setIsOpen(false);
     setFormStep(0);
     form.reset();
@@ -139,7 +149,10 @@ export default function DialogFormAddTasks({
       label: "Pelayanan Pelanggan",
     },
   ];
-
+  const teamsOptions = teams?.map((team) => ({
+    label: team.name,
+    value: team.id,
+  }))
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -295,10 +308,14 @@ export default function DialogFormAddTasks({
                         <FormItem className="space-y-2">
                           <FormLabel>Assigned</FormLabel>
                           <FormControl>
-                            <Input
-                              type="text"
+                            <MultiSelectFormField
+                              options={teamsOptions}
+                              onValueChange={field.onChange}
+                              placeholder="Select Category"
+                              variant="inverted"
+                              animation={2}
                               {...field}
-                              {...form.register("assigned")}
+                              {...form.register("category")}
                             />
                           </FormControl>
                           <FormMessage />

@@ -7,7 +7,10 @@ export const schemaAddTasksExtended = z.object({
   dueDate: z.string().min(1, { message: "Due Date is required" }),
   dueTime: z.string().min(1, { message: "Due Time is required" }),
   priority: z.enum(["tinggi", "sedang", "kecil"]).refine(val => ["tinggi", "sedang", "kecil"].includes(val), { message: "Priority is required" }),
-  assigned: z.string().optional(),
+  assigned: z
+  .array(z.string().min(1))
+  .max(10)
+  .nonempty("Please Select at least one user").optional(),
   notes: z.string().min(1, { message: "Notes is required" }),
   category: z
     .array(z.string().min(1))

@@ -86,6 +86,36 @@ export async function updateTaskById(taskData: TasksData) {
   }
 }
 
+export async function AddTaskTeams(taskData: TasksData) {
+  if (!taskData.modules) {
+    taskData.modules = [];
+    }
+    if (!taskData.teams) {
+        taskData.teams = [];
+    }
+    if (taskData.status === undefined) {
+        taskData.status = false;
+    }
+    if (!taskData.statusTask) {
+        taskData.statusTask = "In Progress";
+    }
+    taskData.created_At = new Date();
+    try {
+      await addDoc(collection(firestore, "tasks"), taskData);
+      return {
+          status: true,
+          statusCode: 200,
+          message: "User created successfully"
+      }
+  } catch (error) {
+      return {
+          status: false,
+          statusCode: 400,
+          message: "Something went wrong please try again later"
+      }
+  }
+}
+
 // export async function addTaskUser(taskData: {
 //   userId: string;
 //   taskId: string;

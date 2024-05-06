@@ -15,7 +15,7 @@ export type addTask = {
   typeTask: string;
   priority: string;
   category: string[];
-  assigned: string;
+  assigned?: string[];
   notes: string;
   created_At?: Date;
   updated_At?: Date;
@@ -38,6 +38,7 @@ export type TasksData = {
   notes: string;
   created_At: Date;
   updated_At: Date;
+  chatId?: string;
 };
 
 interface User {
