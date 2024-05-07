@@ -5,19 +5,23 @@ import { useSession } from "next-auth/react";
 import { useToast } from "../components/ui/use-toast";
 import axios from "axios";
 import { TasksData, addTask } from "@/types";
+import { getTaskTeams } from '@/services/task/task';
 
 
 interface UseTasksReturn {
     tasksList: TasksData[];
+    tasksTeam: TasksData[];
     isLoading: boolean;
     handleTask: (taskData: addTask) => Promise<void>;
     handleDeleteTask: (taskId: string) => Promise<void>;
     handleEditTask: (taskId: string, taskData: FormData) => Promise<void>;
     fetchTasks: () => Promise<void>;
+    fetchTasksTeams: () => Promise<void>;
   }
 
 export const useTasks = (): UseTasksReturn   => {
   const [tasksList, setTasksList] = useState<TasksData[]>([]);
+  const [tasksTeam, setTaskTeams] = useState<TasksData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
   const { toast } = useToast();
@@ -34,6 +38,19 @@ export const useTasks = (): UseTasksReturn   => {
       setIsLoading(false);
     }
   }, [session?.user?.id]);
+
+  const fetchTasksTeams = useCallback(async () => {
+    if (!session?.user?.email) return;
+    setIsLoading(true);
+    try {
+      const response = await getTaskTeams(session?.user?.email);
+      setTaskTeams(response);
+    } catch (error) {
+      console.error("Failed to fetch tasks", error);
+    }finally {
+      setIsLoading(false);
+    }
+  }, [session?.user?.email]);
 
   const handleTask = async (taskData: addTask) => {
     if (!session) {
@@ -117,10 +134,12 @@ export const useTasks = (): UseTasksReturn   => {
 
   return {
     tasksList,
+    tasksTeam,
     isLoading,
     handleTask,
     handleDeleteTask,
     handleEditTask,
     fetchTasks,
+    fetchTasksTeams
   };
 };
