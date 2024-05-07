@@ -75,7 +75,6 @@ export default function DialogFormAddTasks({
 
   const typeTask = form.watch("typeTask");
   const teams = useTeamsData(session?.user?.email, typeTask);
-  console.log(teams);
 
   async function onSubmit(data: Inputs) {
     const taskData: addTask = {
@@ -85,18 +84,34 @@ export default function DialogFormAddTasks({
       dueDate: data.dueDate,
       dueTime: data.dueTime,
       priority: data.priority,
-      assigned: data.assigned || [],
+      assigned: processAssigned(data),
       notes: data.notes,
       category: data.category || [],
     };
-    if (data.typeTask === "teams") {
-      alert(JSON.stringify(data, null, 4));
+    try {
+      if (data.typeTask === "teams" && taskData.assigned && taskData.assigned.length > 0) {
+        await handleTask(taskData);
+        setIsOpen(false);
+        setFormStep(0);
+      } else {
+        await handleTask(taskData);
+        setIsOpen(false);
+        setFormStep(0);
+      }
+    } catch (error) {
+      console.error("Error handling task:", error);
+    } finally {
+      form.reset();
+      if (onTaskAdded) onTaskAdded();
     }
-    // await handleTask(taskData);
-    setIsOpen(false);
-    setFormStep(0);
-    form.reset();
-    if (onTaskAdded) onTaskAdded();
+  }
+  
+  function processAssigned(data: Inputs): string[] {
+    if (data.typeTask === "teams" && data.assigned && data.assigned.length > 0) {
+      const splitMember = data.assigned[0].split(",").map(email => email.trim());
+      return splitMember.filter(email => email !== ""); // Filter out any empty strings
+    }
+    return [];
   }
 
   const categoryListTask = [
@@ -151,8 +166,8 @@ export default function DialogFormAddTasks({
   ];
   const teamsOptions = teams?.map((team) => ({
     label: team.name,
-    value: team.id,
-  }))
+    value: team.members.join(", "),
+  }));
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
