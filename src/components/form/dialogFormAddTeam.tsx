@@ -75,7 +75,7 @@ export default function DialogFormAddTeam({
   }
   const usersList = useFetchUsers(querySearch);
   const formattedUsersList = usersList.map((user) => ({
-    label: user.fullname,
+    label: user.fullname + " - " + user.email,
     value: user.email,
     id: user.id,
     email: user.email,
@@ -87,7 +87,7 @@ export default function DialogFormAddTeam({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="p-4">
+        <DialogContent className="p-4 sm:max-w-[450px]">
           <DialogHeader className="border-b pb-4 px-1">
             <DialogTitle className="text-left">{title}</DialogTitle>
           </DialogHeader>
@@ -138,6 +138,7 @@ export default function DialogFormAddTeam({
                       <FormControl>
                         <MultiSelectFormField
                           options={userList}
+                          popoperClassName="w-[392px]"
                           onValueChange={field.onChange}
                           placeholder="Select members"
                           variant="inverted"
