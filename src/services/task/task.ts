@@ -1,5 +1,5 @@
 import { firestore } from "@/lib/firebase/init";
-import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { getDataByField } from "../auth/services";
 import { TasksData } from "@/types";
@@ -114,6 +114,16 @@ export async function AddTaskTeams(taskData: TasksData) {
           message: "Something went wrong please try again later"
       }
   }
+}
+
+export async function getTaskTeams(email: string) {
+  const q = query(collection(firestore, "tasks"), where("assigned", "array-contains", email));
+  const querySnapshot = await getDocs(q);
+  const getData : TasksData[] = querySnapshot.docs.map((doc) => ({
+    ...doc.data() as TasksData,
+    id: doc.id,
+  }));
+  return getData
 }
 
 // export async function addTaskUser(taskData: {
