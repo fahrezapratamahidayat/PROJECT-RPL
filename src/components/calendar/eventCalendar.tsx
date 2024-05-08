@@ -39,7 +39,7 @@ interface Event {
 }
 
 interface EventCalendarProps {
-  events: Event[];
+  events?: Event[];
 }
 
 export function CalendarEvent({ events }: EventCalendarProps) {
@@ -64,6 +64,7 @@ export function CalendarEvent({ events }: EventCalendarProps) {
   const startingDayIndex = getDay(firstDayOfMonth);
 
   const eventsByDate = useMemo(() => {
+    if (!events) return {}; // Tambahkan pengecekan jika events tidak ada atau kosong
     return events.reduce((acc: { [key: string]: Event[] }, event) => {
       const dateKey = format(event.date, "yyyy-MM-dd");
       if (!acc[dateKey]) {
@@ -125,9 +126,9 @@ export function CalendarEvent({ events }: EventCalendarProps) {
           return (
             <div
               key={index}
-              className={clsx("border rounded-md p-2 text-center", {
-                "bg-gray-200": isToday(day),
-                "text-gray-900": isToday(day),
+              className={clsx("border rounded-md p-2 text-center hover:bg-muted", {
+                "": isToday(day),
+                "": isToday(day),
               })}
             >
               {format(day, "d")}
