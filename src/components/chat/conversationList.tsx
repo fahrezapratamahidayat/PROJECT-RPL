@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FormAddGroupChats from "../form/formAddGroupChats";
 import { Avatar } from "@radix-ui/react-avatar";
 import AvatarGroup from "../avatars/avatarGroup";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface User {
   id: string;
@@ -63,7 +64,7 @@ export default function ConverSationList({
   const [querySearch, setQuerySearch] = useState("");
   const [usersList, setUserList] = useState<User[]>([]);
   const [chatrooms, setChatrooms] = useState<ChatroomDetail[]>([]);
-  const [activeTab, setActiveTab] = useState("direct");
+  const [storedValue, setValue] = useLocalStorage("tabs-chats", "direct");
 
   const fetchAllUsers = useCallback(async () => {
     let usersQuery = query(
@@ -86,7 +87,7 @@ export default function ConverSationList({
     const chatroomQuery = query(
       collection(firestore, "chatrooms"),
       where("users", "array-contains", session?.user?.id),
-      where("type", "==", activeTab)
+      where("type", "==", storedValue)
     );
     const chatroomQuerySnapshot = await getDocs(chatroomQuery);
     const chatroomsData = chatroomQuerySnapshot.docs.map(
@@ -118,7 +119,7 @@ export default function ConverSationList({
       users: usersData.filter((user) => chatroom.users.includes(user.id)),
     }));
     setChatrooms(datas);
-  }, [activeTab, session?.user?.id]);
+  }, [storedValue, session?.user?.id]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -130,7 +131,7 @@ export default function ConverSationList({
   useEffect(() => {
     setQuerySearch("");
     setChatrooms([]);
-  }, [activeTab]);
+  }, [storedValue]);
 
   const uniqueUsers = useMemo(() => {
     const allUsers = new Set<User>();
@@ -163,14 +164,14 @@ export default function ConverSationList({
           <DialogTrigger asChild>
             <Button className="text-center text-sm gap-1 mt-5">
               <Plus className="" />{" "}
-              {activeTab === "direct" ? "Direct" : "Group"}
+              {storedValue === "direct" ? "Direct" : "Group"}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[450px]">
             <DialogHeader className="gap-3">
               <DialogTitle>Start New Chat</DialogTitle>
             </DialogHeader>
-            {activeTab === "direct" ? (
+            {storedValue === "direct" ? (
               <div className="">
                 <Input
                   type="text"
@@ -198,10 +199,14 @@ export default function ConverSationList({
             )}
           </DialogContent>
         </Dialog>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-1">
+        <Tabs value={storedValue} onValueChange={setValue} className="mt-1">
           <TabsList className="bg-transparent">
-            <TabsTrigger value="direct">Inbox</TabsTrigger>
-            <TabsTrigger value="group">Group</TabsTrigger>
+            <TabsTrigger value="direct" onClick={() => setValue("direct")}>
+              Inbox
+            </TabsTrigger>
+            <TabsTrigger value="group" onClick={() => setValue("group")}>
+              Group
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="direct">
             <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden w-full">
