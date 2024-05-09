@@ -38,6 +38,7 @@ import { addTask } from "@/types";
 import { useSession } from "next-auth/react";
 import { getTeams } from "@/services/teams/teams";
 import { useTeamsData } from "@/hooks/useTeams";
+import { ColorPicker } from "../ui/color-picker";
 
 type Inputs = z.infer<typeof schemaAddTasksExtended>;
 
@@ -70,6 +71,7 @@ export default function DialogFormAddTasks({
       assigned: [],
       notes: "",
       category: [],
+      attachments: "",
     },
   });
 
@@ -87,9 +89,14 @@ export default function DialogFormAddTasks({
       assigned: processAssigned(data),
       notes: data.notes,
       category: data.category || [],
+      attachments: data.attachments,
     };
     try {
-      if (data.typeTask === "teams" && taskData.assigned && taskData.assigned.length > 0) {
+      if (
+        data.typeTask === "teams" &&
+        taskData.assigned &&
+        taskData.assigned.length > 0
+      ) {
         await handleTask(taskData);
         setIsOpen(false);
         setFormStep(0);
@@ -105,11 +112,17 @@ export default function DialogFormAddTasks({
       if (onTaskAdded) onTaskAdded();
     }
   }
-  
+
   function processAssigned(data: Inputs): string[] {
-    if (data.typeTask === "teams" && data.assigned && data.assigned.length > 0) {
-      const splitMember = data.assigned[0].split(",").map(email => email.trim());
-      return splitMember.filter(email => email !== ""); // Filter out any empty strings
+    if (
+      data.typeTask === "teams" &&
+      data.assigned &&
+      data.assigned.length > 0
+    ) {
+      const splitMember = data.assigned[0]
+        .split(",")
+        .map((email) => email.trim());
+      return splitMember.filter((email) => email !== ""); // Filter out any empty strings
     }
     return [];
   }
@@ -399,6 +412,34 @@ export default function DialogFormAddTasks({
                           />
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="attachments"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormLabel>Select Color</FormLabel>
+                        <FormControl className="">
+                          <ColorPicker
+                            {...field}
+                            items={[
+                              { value: "#e11d48", label: "" },
+                              { value: "#db2777", label: "" },
+                              { value: "#c026d3", label: "" },
+                              { value: "#9333ea", label: "" },
+                              { value: "#4f46e5", label: "" },
+                              { value: "#0284c7", label: "" },
+                              { value: "#0d9488", label: "" },
+                              { value: "#059669", label: "" },
+                              { value: "#16a34a", label: "" },
+                              { value: "#ca8a04", label: "" },
+                              { value: "#ea580c", label: "" },
+                              { value: "#dc2626", label: "" },
+                            ]}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
