@@ -1,27 +1,44 @@
 "use client";
-import React, { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
+import React, { useEffect, useState } from "react";
 
-import { addDays, subDays } from "date-fns";
+import { addDays, parseISO, subDays } from "date-fns";
 import { CalendarEvent } from "@/components/calendar/eventCalendar";
 import Navbar from "@/components/navigation/navbar";
 import Sidebar from "@/components/navigation/sidebar";
+import { useTasks } from "@/hooks/useTaskManager";
 
 export default function Page() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const {
+    isLoading,
+    tasksList,
+    tasksTeam,
+    fetchTasks,
+    fetchTasksTeams,
+    handleEditTask,
+    handleDeleteTask,
+  } = useTasks();
+
+  useEffect(() => {
+    fetchTasks();
+    fetchTasksTeams();
+  }, [fetchTasks, fetchTasksTeams]);
+
+  const taskEvents = tasksList.map((task) => ({
+    id: task.id,
+    date: parseISO(task.dueDate),
+    endDate: parseISO(task.dueTime),
+    title: task.title,
+    color: task.attachments
+  }));
+
+
   return (
     <div className="flex min-h-screen w-full flex-col ">
       <Sidebar />
       <div className="flex flex-col lg:pl-[14rem]">
         <Navbar />
         <div className="">
-          <CalendarEvent
-            events={[
-              { date: subDays(new Date(), 6), title: "Post video" },
-              { date: subDays(new Date(), 1), title: "Edit video" },
-              { date: addDays(new Date(), 3), title: "Code" },
-            ]}
-          />
+          <CalendarEvent events={taskEvents} />
         </div>
       </div>
     </div>
