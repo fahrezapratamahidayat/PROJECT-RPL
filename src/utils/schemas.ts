@@ -9,13 +9,13 @@ export const schemaAddTasksExtended = z.object({
   priority: z.enum(["tinggi", "sedang", "kecil"]).refine(val => ["tinggi", "sedang", "kecil"].includes(val), { message: "Priority is required" }),
   assigned: z
   .array(z.string().min(1))
-  .max(10)
-  .nonempty("Please Select at least one user").optional(),
+  .max(10).optional(),
   notes: z.string().min(1, { message: "Notes is required" }),
   category: z
     .array(z.string().min(1))
     .max(10)
     .nonempty("Please select at least one framework."),
+    attachments: z.string().min(1, { message: "Attachments is required" }),
 });
 
 

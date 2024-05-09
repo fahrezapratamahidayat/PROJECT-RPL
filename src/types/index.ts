@@ -19,6 +19,7 @@ export type addTask = {
   notes: string;
   created_At?: Date;
   updated_At?: Date;
+  attachments: string;
 }
 export type TasksData = {
   id: string;
@@ -39,6 +40,7 @@ export type TasksData = {
   created_At: Date;
   updated_At: Date;
   chatId?: string;
+  attachments: string;
 };
 
 interface User {
