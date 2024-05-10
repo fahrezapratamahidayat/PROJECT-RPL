@@ -63,7 +63,6 @@ export default function FormAddGroupChats() {
         duration: 2000,
       });
       form.reset();
-      console.log(chatRoom);
       router.push(`/chats/${chatRoom?.id}?type=group`);
     } catch (error) {
       toast({
