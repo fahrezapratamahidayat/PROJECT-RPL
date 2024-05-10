@@ -76,6 +76,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  .rdp-vhidden {
+    @apply hidden;
+  }
+}
+.rdp-vhidden {
+  @apply hidden;
 }
 
 .overflow-message::-webkit-scrollbar {
