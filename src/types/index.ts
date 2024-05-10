@@ -35,12 +35,11 @@ export type TasksData = {
   typeTask: string;
   priority: string;
   category: string[];
-  assigned: string;
+  assigned: string[];
   notes: string;
-  created_At: Date;
-  updated_At: Date;
-  chatId?: string;
   attachments: string;
+  created_At?: Date;
+  updated_At?: Date;
 };
 
 interface User {
