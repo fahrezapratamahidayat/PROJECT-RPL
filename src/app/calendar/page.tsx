@@ -23,8 +23,8 @@ export default function CalendarPage() {
 
   const taskEvents = tasksList.map((task) => ({
     id: task.id,
-    dueDate: format(parseISO(task.dueDate), 'yyyy-MM-dd'),
-    dueTime: format(parseISO(task.dueDate), 'yyyy-MM-dd'),
+    dueDate: parseISO(task.dueDate),
+    dueTime: parseISO(task.dueTime),
     title: task.title,
     color: task.attachments,
     description: task.description,
@@ -40,6 +40,7 @@ export default function CalendarPage() {
     modules: task.modules,
   }));
 
+  useEffect(() => {}, [taskEvents, tasksList,tasksTeam]);
   return (
     <div className="flex min-h-screen w-full flex-col ">
       <Sidebar />
