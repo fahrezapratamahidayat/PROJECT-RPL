@@ -9,25 +9,11 @@ import {
   setYear,
 } from "date-fns";
 import { id } from "date-fns/locale";
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useEffect, useMemo, useState } from "react";
 import { CardDialogEvents } from "../card/cardDialogEvent";
-import { TasksData } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import CalendarPopover from "./calendar";
 
 // const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -44,11 +30,11 @@ const MONTHS = Array.from({ length: 12 }, (_, i) =>
   format(new Date(0, i), "MMMM")
 );
 
-interface Event extends TasksData {
+interface Event {
   id: string;
   createdBy?: string;
-  dueDate: string;
-  dueTime: string;
+  dueDate: Date;
+  dueTime: Date;
   description: string;
   modules: any[];
   status: boolean;
@@ -75,11 +61,17 @@ export function CalendarEvent({ events }: EventCalendarProps) {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newYear = parseInt(e.target.value, 10);
+  // const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const newYear = parseInt(e.target.value, 10);
+  //   setYearState(newYear);
+  //   setCurrentDate(setYear(currentDate, newYear));
+  // };
+
+  const handleYearChange = (newYear: number) => {
     setYearState(newYear);
     setCurrentDate(setYear(currentDate, newYear));
   };
+
   const handleMonthChange = (newMonth: number) => {
     setMonthState(newMonth);
     setCurrentDate(setMonth(currentDate, newMonth));
@@ -127,40 +119,53 @@ export function CalendarEvent({ events }: EventCalendarProps) {
     setSelectedEvent(null);
   };
 
-  useEffect(() => {
-  },[currentDate,month,year])
+  const handleMonthChangePopover = (date: Date) => {
+    const newMonth = date.getMonth();
+    setMonthState(newMonth);
+    setCurrentDate(setMonth(currentDate, newMonth));
+  };
+
+  
+  const decrementMonth = () => {
+    const newMonth = month - 1;
+    handleMonthChange(newMonth >= 0 ? newMonth : 11);
+    if (newMonth < 0) {
+      handleYearChange(year - 1);
+    }
+  };
+
+  const incrementMonth = () => {
+    const newMonth = month + 1;
+    handleMonthChange(newMonth <= 11 ? newMonth : 0);
+    if (newMonth > 11) {
+      handleYearChange(year + 1);
+    }
+  };
+
+  useEffect(() => {}, [currentDate, month, year]);
 
   return (
     <>
       <div className="p-4">
         <div className="mb-4 flex justify-between items-center">
-          <Select
-            onValueChange={(value) => handleMonthChange(parseInt(value, 10))}
-          >
-            <SelectTrigger className="w-[280px]">
-              <SelectValue
-                placeholder={currentMonthName}
-                defaultValue={month}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {MONTHS.map((name, index) => (
-                <SelectItem key={name} value={index.toString()}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <input
-            type="number"
-            value={year}
-            onChange={handleYearChange}
-            className="text-center"
+          <CalendarPopover
+            open={popoverOpen}
+            onOpenChange={setPopoverOpen}
+            date={currentDate}
+            setDate={setCurrentDate}
+            month={month}
+            year={year}
+            onYearChange={handleYearChange}
+            onMonthChange={handleMonthChangePopover}
           />
-          <h2 className="text-center">
-            {format(currentDate, "MMMM yyyy", { locale: id })}
-          </h2>
-          <CalendarPopover open={popoverOpen} onOpenChange={setPopoverOpen} date={currentDate} setDate={setCurrentDate} month={month} />
+          <div className="flex items-center gap-2">
+            <Button variant={"ghost"} size={"icon"} className="p-2 rounded-full transition-colors" onClick={decrementMonth}>
+              <ChevronLeftIcon className="w-4 h-4" />
+            </Button>
+            <Button variant={"ghost"} size={"icon"} className="p-2 rounded-full transition-colors" onClick={incrementMonth}>
+              <ChevronRightIcon className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
         <div className="grid grid-cols-7">
           {WEEKDAYS.map((day) => (
@@ -177,7 +182,7 @@ export function CalendarEvent({ events }: EventCalendarProps) {
             return (
               <div
                 key={index}
-                className={cn("h-[200px] border relative", {
+                className={cn(`border h-[300px] relative`, {
                   "bg-secondarysss": todaysEvents.length > 0,
                   border: !todaysEvents.some((event) => {
                     const eventStart = format(event.dueDate, "yyyy-MM-dd");
@@ -197,7 +202,7 @@ export function CalendarEvent({ events }: EventCalendarProps) {
                     {format(day, "d")}
                   </span>
                 </div>
-                <div className="flex flex-col gap-1 absolute top-10 left-0 right-0">
+                <div className="flex flex-col gap-1 absolute top-12 left-0 right-0">
                   {todaysEvents.map((event) => {
                     const eventStart = format(event.dueDate, "yyyy-MM-dd");
                     const eventEnd = event.dueTime
@@ -209,9 +214,9 @@ export function CalendarEvent({ events }: EventCalendarProps) {
                           key={event.title}
                           style={{ backgroundColor: event.attachments }}
                           onClick={() => handleEventClick(event)}
-                          className="cursor-pointer"
+                          className="cursor-pointer p-2"
                         >
-                          <span className="text-sm font-semibold px-2">
+                          <span className="text-sm font-semibold">
                             {event.title}
                           </span>
                           {isDialogOpen &&
