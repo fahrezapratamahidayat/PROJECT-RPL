@@ -16,11 +16,12 @@ export default function CardTasksTeams() {
   const [formActive, setFormActive] = useState(false);
   const [alertActive, setAlertActive] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TasksData>({} as TasksData);
+  const [activeStatus, setActiveStatus] = useState("");
+
   const {
     isLoading,
     tasksTeam,
     fetchTasksTeams,
-    handleEditTask,
     handleDeleteTask,
   } = useTasks();
 
@@ -28,17 +29,17 @@ export default function CardTasksTeams() {
     await handleDeleteTask(selectedTask.id);
     setAlertActive(false);
   };
-
-  const handleEditTasks = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    await handleEditTask(selectedTask.id, formData);
-    setFormActive(false);
-  };
-
   useEffect(() => {
     fetchTasksTeams();
   }, [fetchTasksTeams]);
+
+  const handleStatusChange = (status: string) => {
+    setActiveStatus(status);
+  };
+
+  const filteredTasks = tasksTeam.filter(task => 
+    (task.statusTask === activeStatus || activeStatus === "") && task.assigned.length !== 0
+  );
 
   return (
     <>
@@ -55,8 +56,7 @@ export default function CardTasksTeams() {
         selectedTask={selectedTask}
         setSelectedTask={setSelectedTask}
         showTrigger={false}
-        isLoading={isLoading}
-        onSubmit={handleEditTasks}
+        oneEditTask={fetchTasksTeams}
       />
       <div className="flex flex-col border px-5 py-2 rounded-lg lg:w-1/2 w-full h-full">
         <div className="flex items-center justify-between pr-0.5">
@@ -65,16 +65,17 @@ export default function CardTasksTeams() {
               Task Priorities
             </span>
             <p className="text-sm text-muted-foreground">
-              Teams tasks by priority
+              Teams tasks by {activeStatus ? activeStatus : "All"}
             </p>
           </div>
           <div className="flex items-center justify-between">
             <DialogAddTasks
               isOpen={modalOpen}
               setIsOpen={setModalOpen}
-              title="Add Task"
+              title="Add Task Team"
               showTrigger={true}
               onTaskAdded={fetchTasksTeams}
+              action="team"
             />
             <Button className="px-2" variant={"ghost"}>
               <GripVertical className="text-muted-foreground" />
@@ -83,14 +84,20 @@ export default function CardTasksTeams() {
           </div>
         </div>
         <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full">
-          <Button className="mt-3" variant={"outline"} size="sm">
-            4 Upcoming
+        <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("")}>
+            All
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm">
-            2 Overdue
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("on going")}>
+            On Going
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm">
-            0 completed
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("completed")}>
+            completed
+          </Button>
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("pending")}>
+            pending
+          </Button>
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("cancel")}>
+            cancel
           </Button>
         </div>
         <div className="max-h-[320px] overflow-auto overflow-TaskList pr-1">
@@ -99,8 +106,8 @@ export default function CardTasksTeams() {
               <Loader2 className="animate-spin" />
               <span>Loading...</span>
             </div>
-          ) : tasksTeam.length > 0 ? (
-            tasksTeam.map((task: TasksData) => {
+          ) : filteredTasks.length > 0 ? (
+            filteredTasks.map((task: TasksData) => {
               const formattedDeadline = formatDateString(
                 task.dueTime,
                 "dd MMMM yyyy HH:mm:ss"
@@ -178,7 +185,7 @@ export default function CardTasksTeams() {
                 </g>
               </g>
             </svg>
-            <span className="text-sm text-center ">No Task Found</span>
+            <span className="text-sm text-center ">No Task Teams Found</span>
           </div>
           )}
         </div>
