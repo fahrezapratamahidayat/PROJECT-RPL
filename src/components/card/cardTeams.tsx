@@ -171,7 +171,7 @@ export default function CardTeams() {
               <span>Loading...</span>
             </div>
           ) : teams.length > 0 ? (
-            <div className="grid gap-2 md:grid-cols-2 md:gap-8 lg:grid-cols-5 w-full">
+            <div className="grid gap-2 md:grid-cols-3 md:gap-8 lg:grid-cols-4 w-full">
               {teams.map((cardData) => (
                 <CardTeam
                   key={cardData.id}
@@ -243,7 +243,7 @@ const CardTeam = ({
       </CardHeader>
       <CardContent className="">
         <div className="flex flex-col items-center justify-center gap-2">
-          <CardTitle className="text-base font-semibold">
+          <CardTitle className="text-base text-center font-semibold">
             {cardData.name}
           </CardTitle>
           <span className="text-sm text-muted-foreground">
