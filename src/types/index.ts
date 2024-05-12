@@ -21,13 +21,37 @@ export type addTask = {
   updated_At?: Date;
   attachments: string;
 }
+
+export type editTask = {
+  title?: string;
+  description?: string;
+  typeTask?: "personal" | "teams";
+  dueDate?: string;
+  dueTime?: string;
+  priority?: "tinggi" | "sedang" | "kecil";
+  assigned?: string[];
+  statusTask?: "on going" | "completed" | "pending" | "cancel";
+};
+
+export interface Module {
+  id: string;
+  subid: string;
+  subname: string;
+  description: string;
+  dueDate: string;
+  dueTime: string;
+  status: 'Pending' | 'In Progress' | 'Completed';
+  assignedTo: string[];
+  progress: number;
+}
+
 export type TasksData = {
   id: string;
   createdBy?: string;
   dueDate: string;
   dueTime: string;
   description: string;
-  modules: any[];
+  modules: Module[];
   status: boolean;
   statusTask: string;
   teams: any[];
