@@ -1,29 +1,28 @@
 "use client";
 import { Button } from "../ui/button";
-import { GripVertical, Loader2, Plus } from "lucide-react";
+import { GripVertical, Loader2 } from "lucide-react";
 import ListTasks from "../schedule/listTask";
 import { useEffect, useState } from "react";
 import * as React from "react";
-import { cn } from "@/lib/utils";
 import AlertDeleteTask from "../alert/alertdelete";
 import { TasksData } from "@/types";
 import DialogAddTasks from "../form/dialogFormAddTasks";
 import { useTasks } from "@/hooks/useTaskManager";
 import { formatDateString } from "@/utils/date";
 import DialogEditTasks from "../form/dialogFormEditTasks";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 export default function CardListTasks() {
   const [modalOpen, setModalOpen] = useState(false);
   const [formActive, setFormActive] = useState(false);
   const [alertActive, setAlertActive] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TasksData>({} as TasksData);
+  const [activeStatus, setActiveStatus] = useState("");
   const {
     isLoading,
     tasksList,
-    tasksTeam,
     fetchTasks,
     fetchTasksTeams,
-    handleEditTask,
     handleDeleteTask,
   } = useTasks();
 
@@ -32,18 +31,18 @@ export default function CardListTasks() {
     setAlertActive(false);
   };
 
-  const handleEditTasks = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    await handleEditTask(selectedTask.id, formData);
-    setFormActive(false);
-  };
-
   useEffect(() => {
     fetchTasks();
     fetchTasksTeams();
   }, [fetchTasks, fetchTasksTeams]);
 
+   const handleStatusChange = (status: string) => {
+    setActiveStatus(status);
+  };
+
+  const filteredTasks = tasksList.filter(task => 
+    (task.statusTask === activeStatus || activeStatus === "") && task.assigned.length === 0
+  );
   return (
     <>
       <AlertDeleteTask
@@ -59,8 +58,7 @@ export default function CardListTasks() {
         selectedTask={selectedTask}
         setSelectedTask={setSelectedTask}
         showTrigger={false}
-        isLoading={isLoading}
-        onSubmit={handleEditTasks}
+        oneEditTask={fetchTasks}
       />
       <div className="flex flex-col border px-5 py-2 rounded-lg lg:w-1/2 w-full h-full">
         <div className="flex items-center justify-between pr-0.5">
@@ -69,7 +67,7 @@ export default function CardListTasks() {
               Task Priorities
             </span>
             <p className="text-sm text-muted-foreground">
-              My Task Sorted By priority
+              My Task Sorted {activeStatus === "" ? "All" : activeStatus}
             </p>
           </div>
           <div className="flex items-center justify-between">
@@ -79,6 +77,7 @@ export default function CardListTasks() {
               title="Add Task"
               showTrigger={true}
               onTaskAdded={fetchTasks}
+              action="solo"
             />
             <Button className="px-2" variant={"ghost"}>
               <GripVertical className="text-muted-foreground" />
@@ -87,24 +86,31 @@ export default function CardListTasks() {
           </div>
         </div>
         <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full">
-          <Button className="mt-3" variant={"outline"} size="sm">
-            4 Upcoming
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("")}>
+            All
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm">
-            2 Overdue
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("on going")}>
+            On Going
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm">
-            0 completed
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("completed")}>
+            completed
+          </Button>
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("pending")}>
+            pending
+          </Button>
+          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("cancel")}>
+            cancel
           </Button>
         </div>
+        {/* <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full"></div> */}
         <div className="max-h-[320px] overflow-auto overflow-TaskList pr-1">
           {isLoading ? (
             <div className="flex justify-center items-center min-h-[12vh] gap-1">
               <Loader2 className="animate-spin" />
               <span>Loading...</span>
             </div>
-          ) : tasksList.length > 0 ? (
-            tasksList.map((task: TasksData) => {
+          ) : filteredTasks.length > 0 ? (
+            filteredTasks.map((task: TasksData) => {
               const formattedDeadline = formatDateString(
                 task.dueTime,
                 "dd MMMM yyyy HH:mm:ss"
