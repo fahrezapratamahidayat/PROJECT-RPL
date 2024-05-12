@@ -48,12 +48,14 @@ export default function DialogFormAddTasks({
   title,
   showTrigger = true,
   onTaskAdded,
+  action,
 }: {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   title: string;
   showTrigger?: false | true;
   onTaskAdded?: () => void;
+  action?: "solo" | "team";
 }) {
   const { handleTask, isLoading } = useTasks();
   const [formStep, setFormStep] = useState(0);
@@ -328,7 +330,7 @@ export default function DialogFormAddTasks({
                     ease: "easeInOut",
                   }}
                 >
-                  {form.watch("typeTask") === "teams" && (
+                  {form.watch("typeTask") === "teams" && action === "team" && (
                     <FormField
                       control={form.control}
                       name="assigned"
@@ -446,7 +448,7 @@ export default function DialogFormAddTasks({
                 </motion.div>
               </div>
               <Button
-                variant={"ghost"}
+                variant={"outline"}
                 className={cn("mt-2", {
                   hidden: formStep == 1,
                 })}
@@ -481,7 +483,7 @@ export default function DialogFormAddTasks({
               </Button>
               <div className="flex items-center gap-1 mt-2 ">
                 {isLoading ? (
-                  <Button className="mt-2" disabled>
+                  <Button className="" disabled>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Loading
                   </Button>
@@ -497,11 +499,11 @@ export default function DialogFormAddTasks({
                 )}
                 <Button
                   type="button"
-                  variant={"ghost"}
+                  variant={"outline"}
                   onClick={() => {
                     setFormStep(0);
                   }}
-                  className={cn("mt-2", {
+                  className={cn("", {
                     hidden: formStep == 0,
                   })}
                 >
