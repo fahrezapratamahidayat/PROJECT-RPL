@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import { useToast } from "../components/ui/use-toast";
 import axios from "axios";
-import { TasksData, addTask } from "@/types";
+import { TasksData, addTask, editTask } from "@/types";
 import { getTaskTeams } from '@/services/task/task';
 
 
@@ -14,7 +14,7 @@ interface UseTasksReturn {
     isLoading: boolean;
     handleTask: (taskData: addTask) => Promise<void>;
     handleDeleteTask: (taskId: string) => Promise<void>;
-    handleEditTask: (taskId: string, taskData: FormData) => Promise<void>;
+    handleEditTask: (taskId: string, taskData: editTask) => Promise<void>;
     fetchTasks: () => Promise<void>;
     fetchTasksTeams: () => Promise<void>;
   }
@@ -108,14 +108,13 @@ export const useTasks = (): UseTasksReturn   => {
     }
   };
 
-  const handleEditTask = async (id: string, taskData: FormData) => {
+  const handleEditTask = async (id: string, taskData: editTask) => {
     if (!session) return;
     setIsLoading(true);
     try {
-      const formValues = Object.fromEntries(taskData);
       await axios.post("/api/updatetask", {
         id,
-        ...formValues,
+        ...taskData,
       });
       await fetchTasks();
       toast({
