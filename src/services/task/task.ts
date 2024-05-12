@@ -2,7 +2,7 @@ import { firestore } from "@/lib/firebase/init";
 import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { getDataByField } from "../auth/services";
-import { TasksData } from "@/types";
+import { Module, TasksData } from "@/types";
 
 export async function randomId() {
     return uuidv4();
@@ -31,7 +31,7 @@ export async function addTasks(taskData: TasksData){
         taskData.status = false;
     }
     if (!taskData.statusTask) {
-        taskData.statusTask = "In Progress";
+        taskData.statusTask = "on going";
     }
     taskData.created_At = new Date();
     try {
@@ -82,6 +82,35 @@ export async function updateTaskById(taskData: TasksData) {
       status: false,
       statusCode: 400,
       message: "Failed to update task, please try again later"
+    };
+  }
+}
+
+export async function updateTaskWithModules(taskData: Module) {
+  try {
+    if (!taskData.subid) {
+      taskData.subid = await randomId();
+    }
+    if (!['Pending', 'In Progress', 'Completed'].includes(taskData.status)) {
+      taskData.status = 'In Progress';
+    }
+    if (!taskData.progress && taskData.progress !== 0) {
+      taskData.progress = 0;
+    }
+    const docRef = doc(firestore, "tasks", taskData.id);
+    await updateDoc(docRef, {
+      modules: arrayUnion(taskData),
+    });
+    return {
+      status: true,
+      statusCode: 200,
+      message: "Task with modules updated successfully",
+    };
+  } catch (error) {
+    return {
+      status: false,
+      statusCode: 400,
+      message: "Failed to update task with modules, please try again later"
     };
   }
 }
