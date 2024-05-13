@@ -38,6 +38,12 @@ export const schemaAddTeamsExtended = z.object({
   members: z.array(z.string()).min(1, { message: "Members is required" }),
 })
 
+export const schemaEditTeamsExtended = z.object({
+  name: z.string().min(1, { message: "Name is required" }).optional(),
+  description: z.string().min(1, { message: "Description is required" }).optional(),
+  members: z.array(z.string()).min(1, { message: "Members is required" }).optional(),
+})
+
 export const schemaAddSubstask = z.object({
   subname: z.string().min(1, { message: "Name is required" }),
   description: z.string().min(1, { message: "Description is required" }),
