@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Ellipsis, Loader2, LogOut, Trash } from "lucide-react";
+import { Edit, Edit2, Ellipsis, Loader2, LogOut, Trash } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { getTeams, leaveTeam } from "@/services/teams/teams";
@@ -26,13 +26,25 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { getUsersByEmails } from "@/services/users/getUser";
+import ListUsers from "../chat/listUsers";
+import { ScrollArea } from "../ui/scroll-area";
+import DialogEditTeam from "../form/dialogFormEditTeam";
 
 type teamsDataType = {
   id: string;
-  leader?: string;
-  name?: string;
-  description?: string;
-  members?: any[];
+  leader: string;
+  name: string;
+  description: string;
+  members: any[];
   created_At?: Date;
   updated_At?: Date;
 };
@@ -42,6 +54,10 @@ export default function CardTeams() {
   const { data: session } = useSession();
   const { toast } = useToast();
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDialogMembers, setOpenDialogMembers] = useState(false);
+  const [dialogEditTeam, setDialogEditTeam] = useState(false);
+  const [membersData, setMembersData] = useState<any[]>([]);
+
   const [selectedTeam, setSelectedTeam] = useState<teamsDataType>(
     {} as teamsDataType
   );
@@ -79,6 +95,7 @@ export default function CardTeams() {
         title: "Failed",
         description: "Only the team leader can delete the team",
         duration: 2000,
+        variant: "destructive",
       });
       return;
     }
@@ -133,6 +150,22 @@ export default function CardTeams() {
     );
   };
 
+  const handleShowMembers = async (selectedTeam: teamsDataType) => {
+    setOpenDialogMembers(true);
+    setSelectedTeam(selectedTeam);
+    if (selectedTeam.members) {
+      const emails = selectedTeam.members.filter((email) => email);
+      if (emails.length > 0) {
+        const usersData = await getUsersByEmails(emails);
+        setMembersData(usersData);
+      }
+    }
+  };
+
+  const handleEditTeam = (selectedTeam: teamsDataType) => {
+    setDialogEditTeam(true);
+    setSelectedTeam(selectedTeam);
+  };
   return (
     <>
       <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -159,6 +192,20 @@ export default function CardTeams() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog open={openDialogMembers} onOpenChange={setOpenDialogMembers}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="mb-2">{selectedTeam.name} - Members</DialogTitle>
+              <ScrollArea className="flex flex-col gap-2 max-h-[250px]">
+                {membersData.length > 0 &&
+                  membersData.map((user) => (
+                    <ListUsers key={user.id} showMessage={true} data={user} />
+                  ))}
+              </ScrollArea>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+      <DialogEditTeam open={dialogEditTeam} setOpen={setDialogEditTeam} selectedTeam={selectedTeam} title="Edit Team" />
       <div className="border flex flex-col justify-center px-3 py-3 gap-3 rounded-lg w-full">
         <div className="flex flex-col">
           <h1 className="text-lg font-bold ">My Teams</h1>
@@ -186,6 +233,8 @@ export default function CardTeams() {
                     setActionType("delete");
                     setOpenDialog(true);
                   }}
+                  showMembers={() => handleShowMembers(cardData)}
+                  onClickEdit={() => handleEditTeam(cardData)}
                 />
               ))}
             </div>
@@ -204,10 +253,14 @@ const CardTeam = ({
   cardData,
   onCLickDelete,
   onClickLeave,
+  showMembers,
+  onClickEdit
 }: {
   cardData: teamsDataType;
   onCLickDelete: () => void;
   onClickLeave: () => void;
+  showMembers?: () => void;
+  onClickEdit?: () => void
 }) => {
   return (
     <Card>
@@ -221,10 +274,7 @@ const CardTeam = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  className=""
-                  onClick={onCLickDelete}
-                >
+                <DropdownMenuItem className="" onClick={onCLickDelete}>
                   <Trash className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
@@ -232,11 +282,15 @@ const CardTeam = ({
                   <LogOut className="mr-2 h-4 w-4" />
                   Leave
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={onClickEdit}>
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Avatar>
+        <Avatar className="cursor-pointer" onClick={showMembers}>
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
