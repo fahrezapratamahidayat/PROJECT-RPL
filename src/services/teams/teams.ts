@@ -87,3 +87,45 @@ export async function addMembers(teamId: string, email: string, callback: (succe
         callback(false);
     }
 }
+
+export async function removeMembers(teamId: string, email: string, callback: (success: boolean) => void) {
+    try {
+        const teamRef = doc(firestore, "teams", teamId);
+        const teamData = await getDoc(teamRef);
+        if(teamData.exists()){
+            const members = teamData.data().members;
+            const index = members.findIndex((member: string) => member === email);
+            members.splice(index, 1);
+        }
+    } catch (error: any) {
+        callback(false);
+    }
+}
+
+export async function editTeam(id: string, data: teamsData, callback: (success: boolean) => void) {
+    try {
+        const docRef = doc(firestore, "teams", id);
+        await updateDoc(docRef, data);
+        callback(true);
+    } catch (error: any) {
+        callback(false);
+    }
+}
+
+export async function updateTeams(data: teamsData) {
+    try {
+        const docRef = doc(firestore, "teams", data.id);
+        await updateDoc(docRef, data);
+        return {
+            status: true,
+            statusCode: 200,
+            message: "Teams updated successfully",
+        };
+    } catch (error) {
+        return {
+            status: false,
+            statusCode: 403,
+            message: "something went wrong",
+        }
+    }
+}
