@@ -77,9 +77,9 @@ export default function Navbar({ className }: { className?: string }) {
             <h1 className="text-2xl font-semibold">Task</h1>
           </div>
           <div className="flex items-center w-max">
-            <div className="flex items-center gap-3 space-x-3 ">
+            <div className="flex items-center gap-5">
               <DropDownAddNavbar />
-              <div className="flex items-center relative">
+              <div className="flex items-center relative hover:bg-secondary">
                 <Bell />
                 <div className="w-2 h-2 bg-red-500 rounded-full absolute top-0.5 left-3.5"></div>
               </div>
