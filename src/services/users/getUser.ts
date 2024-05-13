@@ -63,3 +63,21 @@ export async function getUserByName(name: string) {
     }));
     return getData
 }
+
+
+export const getUsersByEmails = async (emails: string[]) => {
+    const usersRef = collection(firestore, "users");
+    const q = query(usersRef, where("email", "in", emails));
+    const querySnapshot = await getDocs(q);
+    const usersData = querySnapshot.docs.map(doc => {
+        const userData = doc.data();
+        return {
+            id: doc.id,
+            email: userData.email,
+            fullname: userData.fullname,
+            idp: userData.idp,
+            profileUrl: userData.profileUrl || "https://github.com/shadcn.png",
+        };
+    });
+    return usersData;
+}
