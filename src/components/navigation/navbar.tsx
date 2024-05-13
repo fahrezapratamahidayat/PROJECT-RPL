@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ModeToggle } from "../dark-mode-toggle";
 
 export default function Navbar({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -82,6 +83,7 @@ export default function Navbar({ className }: { className?: string }) {
                 <Bell />
                 <div className="w-2 h-2 bg-red-500 rounded-full absolute top-0.5 left-3.5"></div>
               </div>
+              <ModeToggle />
               <DropdownAvatar />
             </div>
           </div>
