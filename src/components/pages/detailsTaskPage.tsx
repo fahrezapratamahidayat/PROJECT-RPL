@@ -3,18 +3,22 @@ import { useTasks } from "@/hooks/useTaskManager";
 import { Module, TasksData } from "@/types";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { format } from "date-fns";
-import { Calendar, GripVertical, Notebook, Tag, Users } from "lucide-react";
+import { Calendar, Notebook, Tag, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { id } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useTeamsData } from "@/hooks/useTeams";
 import { useSession } from "next-auth/react";
-import { Button } from "../ui/button";
 import DialogFormAddSubTask from "../form/dialogFormSubTask";
 import ListTasks from "../schedule/listTask";
 import { formatDateString } from "@/utils/date";
-import AlertDeleteTask from "../alert/alertdelete";
-import DialogEditTasks from "../form/dialogFormEditTasks";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function DetailsTaskPage({
   params,
@@ -80,16 +84,21 @@ export default function DetailsTaskPage({
             <h1 className="font-bold text-base">Description</h1>
             <p className="text-sm font-medium text-muted-foreground text-justify">
               {filteredTask?.description ?? "Description not available"}
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Praesentium dolore asperiores obcaecati quis quod ullam explicabo?
-              Labore, dolores cumque fugit aut sint, neque expedita officiis
-              culpa quaerat, repellendus explicabo veniam.
             </p>
           </div>
           <Separator className="border" />
           <div className="flex-flex-col">
             <div className="flex items-center gap-3">
-              <Calendar className="text-muted-foreground" />
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Calendar className="" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">Start and end</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <span className="text-sm text-muted-foreground">
                 {filteredTask?.dueDate
                   ? format(
@@ -142,7 +151,16 @@ export default function DetailsTaskPage({
           </div>
           <div className="flex-flex-col">
             <div className="flex items-center gap-3">
-              <Users className="text-muted-foreground" />
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Users className="" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">List of teams</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <span className="text-sm text-muted-foreground">
                 {filteredTask?.assigned && filteredTask.assigned.length > 0
                   ? filteredTask.assigned.join(", ")
@@ -152,7 +170,16 @@ export default function DetailsTaskPage({
           </div>
           <div className="flex-flex-col">
             <div className="flex items-center gap-3">
-              <Tag className="text-muted-foreground" />
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Tag className="" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">Category</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <span className="text-sm text-muted-foreground">
                 {filteredTask?.category && filteredTask.category.length > 0
                   ? filteredTask.category.join(", ")
@@ -162,7 +189,16 @@ export default function DetailsTaskPage({
           </div>
           <div className="flex-flex-col">
             <div className="flex items-center gap-3">
-              <Notebook className="text-muted-foreground" />
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Notebook className="" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">Notes</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <span className="text-sm text-muted-foreground">
                 {filteredTask?.notes ?? "Notes not available"}
               </span>
