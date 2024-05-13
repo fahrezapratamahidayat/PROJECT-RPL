@@ -1,4 +1,3 @@
-import { DarkModeToggle } from "@/components/dark-mode-toggle";
 import Navbar from "@/components/navigation/navbar";
 import Sidebar from "@/components/navigation/sidebar";
 import DashboardView from "@/components/pages/dashboardView";
