@@ -17,7 +17,7 @@ export default function ListUsers({
         <div
           className={`${
             data.id === slug ? "bg-muted" : ""
-          } flex items-centers justify-start gap-5 px-3 py-3 rounded-lg hover:bg-muted`}
+          } flex items-centers justify-start gap-5 px-3 py-3 rounded-lg hover:bg-muted mx-1 mt-1`}
         >
           <Avatar>
             <AvatarImage src={data.profileUrl || "https://github.com/shadcn.png"} />
