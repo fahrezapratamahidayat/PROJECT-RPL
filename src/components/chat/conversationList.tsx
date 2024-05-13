@@ -1,4 +1,4 @@
-"use client";
+"use client";;
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,9 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FormAddGroupChats from "../form/formAddGroupChats";
-import { Avatar } from "@radix-ui/react-avatar";
 import AvatarGroup from "../avatars/avatarGroup";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface User {
   id: string;
@@ -76,11 +76,11 @@ export default function ConverSationList({
     }
     return onSnapshot(usersQuery, (snapshot) => {
       const fetchedUsers = snapshot.docs
-        .filter((doc) => doc.id !== undefined)
+        .filter((doc) => doc.id !== undefined && doc.id !== session?.user?.id)
         .map((doc) => ({ id: doc.id, ...doc.data() } as User));
       setUserList(fetchedUsers);
     });
-  }, [querySearch]);
+  }, [querySearch, session?.user?.id]);
 
   const fetchDetailRoom = useCallback(async () => {
     setChatrooms([]);
@@ -172,25 +172,19 @@ export default function ConverSationList({
               <DialogTitle>Start New Chat</DialogTitle>
             </DialogHeader>
             {storedValue === "direct" ? (
-              <div className="">
+              <div className="flex flex-col">
                 <Input
                   type="text"
-                  placeholder="Search"
+                  placeholder="Search users"
                   onChange={(e: any) => setQuerySearch(e.target.value)}
-                  className="drop-shadow-lg shadow-lg z-10"
+                  className="drop-shadow-lg shadow-lg z-10 mb-3"
                 />
-                <div className="max-h-[250px] overflow-y-auto overflow-x-hidden overflow-message">
-                  <div className="overflow-hidden space-y-2 mt-5">
-                    {open &&
-                      usersList.map((user) => (
-                        <ListUsers
-                          key={user.id}
-                          showMessage={true}
-                          data={user}
-                        />
-                      ))}
-                  </div>
-                </div>
+                <ScrollArea className="max-h-[250px]">
+                  {open &&
+                    usersList.map((user) => (
+                      <ListUsers key={user.id} showMessage={true} data={user} />
+                    ))}
+                </ScrollArea>
               </div>
             ) : (
               <div className="">
@@ -201,23 +195,30 @@ export default function ConverSationList({
         </Dialog>
         <Tabs value={storedValue} onValueChange={setValue} className="mt-1">
           <TabsList className="bg-transparent">
-            <TabsTrigger value="direct" onClick={() => setValue("direct")}>
+            <TabsTrigger
+              value="direct"
+              className={`${storedValue === "direct" && "bg-secondary"}`}
+              onClick={() => setValue("direct")}
+            >
               Inbox
             </TabsTrigger>
-            <TabsTrigger value="group" onClick={() => setValue("group")}>
+            <TabsTrigger
+              value="group"
+              className={`${storedValue === "group" && "bg-secondary"}`}
+              onClick={() => setValue("group")}
+            >
               Group
             </TabsTrigger>
           </TabsList>
           <TabsContent value="direct">
-            <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden w-full">
-              {/* LIST PEOPLES CHAT WITH USER HERE */}
+            <ScrollArea className="flex flex-col max-h-[33rem]">
               {uniqueUsers.map((user) => (
                 <ListUsers key={user.id} data={user} slug={slug} />
               ))}
-            </div>
+            </ScrollArea>
           </TabsContent>
           <TabsContent value="group">
-            <div className="flex flex-col space-y-2 mt-5 max-h-[33rem] overflow-y-auto overflow-x-hidden w-full">
+            <ScrollArea className="flex flex-col max-h-[33rem]">
               {chatrooms.map(
                 (chatroom) =>
                   chatroom.type === "group" && (
@@ -228,7 +229,7 @@ export default function ConverSationList({
                     />
                   )
               )}
-            </div>
+            </ScrollArea>
           </TabsContent>
         </Tabs>
       </div>
