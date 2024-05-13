@@ -195,7 +195,7 @@ export function CalendarEvent({ events }: EventCalendarProps) {
               >
                 <div className="flex items-center justify-center px-3 py-2">
                   <span
-                    className={cn("text-base px-1.5 py-0.5 rounded-full", {
+                    className={cn("text-base text-white px-1.5 py-0.5 rounded-full", {
                       " bg-blue-500": isToday(day),
                     })}
                   >
@@ -216,7 +216,7 @@ export function CalendarEvent({ events }: EventCalendarProps) {
                           onClick={() => handleEventClick(event)}
                           className="cursor-pointer p-2"
                         >
-                          <span className="text-sm font-semibold">
+                          <span className="text-sm text-white font-semibold">
                             {event.title}
                           </span>
                           {isDialogOpen &&
