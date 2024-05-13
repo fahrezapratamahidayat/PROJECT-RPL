@@ -84,19 +84,19 @@ export default function CardTasksTeams() {
           </div>
         </div>
         <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full">
-        <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("")}>
+        <Button className={`mt-3 ${activeStatus === "" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("")}>
             All
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("on going")}>
+          <Button className={`mt-3 ${activeStatus === "on going" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("on going")}>
             On Going
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("completed")}>
+          <Button className={`mt-3 ${activeStatus === "completed" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("completed")}>
             completed
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("pending")}>
+          <Button className={`mt-3 ${activeStatus === "pending" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("pending")}>
             pending
           </Button>
-          <Button className="mt-3" variant={"outline"} size="sm" onClick={() => handleStatusChange("cancel")}>
+          <Button className={`mt-3 ${activeStatus === "cancel" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("cancel")}>
             cancel
           </Button>
         </div>
