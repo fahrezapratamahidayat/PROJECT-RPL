@@ -1,6 +1,6 @@
 import { firestore } from "@/lib/firebase/init";
 import { ChatRoom, Message } from "@/types";
-import { collection, addDoc, query, where, getDocs, Timestamp, orderBy, getDoc, doc } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, Timestamp, orderBy, getDoc, doc, onSnapshot } from "firebase/firestore";
 
 export const getOrCreateChatRoom = async (users: string[], action: 'create' | 'join ' | 'direct' | 'group', name?: string, chatRoomId?: string) => {
   const chatroomsRef = collection(firestore, "chatrooms");
@@ -80,19 +80,38 @@ export const sendMessage = async (chatRoomId: string, message: string, sender: s
   });
 };
 
-export const getMessages = async (chatRoomId: string): Promise<Message[]> => {
-  const messagesRef = collection(firestore, `chatrooms/${chatRoomId}/messages`);
-  const q = query(messagesRef, orderBy("timestamp", "asc")); // Mengurutkan pesan berdasarkan timestamp secara ascending
+// export const getMessages = async (chatRoomId: string): Promise<Message[]> => {
+//   const messagesRef = collection(firestore, `chatrooms/${chatRoomId}/messages`);
+//   const q = query(messagesRef, orderBy("timestamp", "asc")); // Mengurutkan pesan berdasarkan timestamp secara ascending
 
-  const querySnapshot = await getDocs(q);
-  const messages: Message[] = [];
-  querySnapshot.forEach((doc) => {
-    messages.push({
-      id: doc.id,
-      ...doc.data(),
-      timestamp: doc.data().timestamp.toDate(), // Konversi Timestamp Firebase ke objek Date JavaScript
-    } as Message);
+//   const querySnapshot = await getDocs(q);
+//   const messages: Message[] = [];
+//   querySnapshot.forEach((doc) => {
+//     messages.push({
+//       id: doc.id,
+//       ...doc.data(),
+//       timestamp: doc.data().timestamp.toDate(), // Konversi Timestamp Firebase ke objek Date JavaScript
+//     } as Message);
+//   });
+
+//   return messages;
+// };
+
+export const getMessages = (chatRoomId: string, callback: (messages: Message[]) => void): () => void => {
+  const messagesRef = collection(firestore, `chatrooms/${chatRoomId}/messages`);
+  const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const messages: Message[] = [];
+    querySnapshot.forEach((doc) => {
+      messages.push({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timestamp.toDate(),
+      } as Message);
+    });
+    callback(messages);
   });
 
-  return messages;
+  return unsubscribe;
 };
