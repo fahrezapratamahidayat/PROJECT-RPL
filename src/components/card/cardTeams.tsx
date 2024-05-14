@@ -157,6 +157,13 @@ export default function CardTeams() {
       const emails = selectedTeam.members.filter((email) => email);
       if (emails.length > 0) {
         const usersData = await getUsersByEmails(emails);
+        usersData.sort((a, b) => {
+          if (a.email === session?.user?.email) return -1;
+          if (b.email === session?.user?.email) return 1;
+          if (a.email === selectedTeam.leader) return -1;
+          if (b.email === selectedTeam.leader) return 1;
+          return 0;
+        });
         setMembersData(usersData);
       }
     }
@@ -199,7 +206,7 @@ export default function CardTeams() {
               <ScrollArea className="flex flex-col gap-2 max-h-[250px]">
                 {membersData.length > 0 &&
                   membersData.map((user) => (
-                    <ListUsers key={user.id} showMessage={true} data={user} />
+                    <ListUsers className={`${user.email === session?.user?.email ? "bg-muted" : ""}`} key={user.id} isValid={user.email !== session?.user?.email} leader={user.email === selectedTeam.leader ? "Leader" : "" || user.email === session?.user?.email ? "You" : ""} showMessage={true} data={user} />
                   ))}
               </ScrollArea>
           </DialogHeader>
