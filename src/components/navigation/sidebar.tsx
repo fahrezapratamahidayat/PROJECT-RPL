@@ -25,7 +25,7 @@ export default function Sidebar() {
               <Home className="h-5 w-5" />
               <span className="text-sm">Dashboard</span>
             </Link>
-            <Link
+            {/* <Link
               href="/projects"
               className={`${
                 pathname === "/projects" ? "bg-secondary" : ""
@@ -33,7 +33,7 @@ export default function Sidebar() {
             >
               <StickyNote className="h-5 w-5" />
               <span className="text-sm">Projects</span>
-            </Link>
+            </Link> */}
             <Link
               href="/chats"
               className={`${
