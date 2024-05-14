@@ -16,6 +16,10 @@ import {
 } from "@/services/chatting/chattings";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase/init";
+import { getUsersByIds } from "@/services/users/getUser";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { ScrollArea } from "../ui/scroll-area";
+import ListUsers from "./listUsers";
 
 type User = {
   id: string;
@@ -34,6 +38,8 @@ export default function ChatRoomList({ slug }: { slug: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
+  const [userInChatsRoom, setUserInChatsRoom] = useState([] as any);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const [userChats, setUserChats] = useState({} as User);
 
@@ -62,23 +68,35 @@ export default function ChatRoomList({ slug }: { slug: string }) {
   const getChatRooms = useCallback(async () => {
     if (!session) return;
     const { user } = session;
-    if (type === "direct") {
-      const users = [user.id, slug];
-      const chatRoom = await getOrCreateChatRoom(
-        users,
-        "direct",
-        undefined,
-        undefined
-      );
-      setChatroom(chatRoom);
-    } else if (type === "group") {
-      const chatRoom = await getOrCreateChatRoom(
-        [user.id],
-        "group",
-        undefined,
-        undefined
-      );
-      setChatroom(chatRoom);
+    try {
+      if (type === "direct") {
+        const users = [user.id, slug];
+        const chatRoom = await getOrCreateChatRoom(
+          users,
+          "direct",
+          undefined,
+          undefined
+        );
+        if (chatRoom?.users) {
+          const getUsersDataInTeams = await getUsersByIds(chatRoom.users);
+          setUserInChatsRoom(getUsersDataInTeams);
+          setChatroom(chatRoom);
+        }
+      } else if (type === "group") {
+        const chatRoom = await getOrCreateChatRoom(
+          [user.id],
+          "group",
+          undefined,
+          undefined
+        );
+        if (chatRoom?.users) {
+          const getUsersDataInTeams = await getUsersByIds(chatRoom.users);
+          setUserInChatsRoom(getUsersDataInTeams);
+          setChatroom(chatRoom);
+        }
+      }
+    } catch (error) {
+      console.error("Error creating chat room:", error);
     }
   }, [session, slug, type]);
 
@@ -86,15 +104,25 @@ export default function ChatRoomList({ slug }: { slug: string }) {
     getChatRooms();
   }, [getChatRooms]);
 
+  // useEffect(() => {
+  //   if (!chatroom.id) return;
+
+  //   const fetchMessages = async () => {
+  //     const loadedMessages = await getMessages(chatroom.id);
+  //     setMessages(loadedMessages);
+  //   };
+
+  //   fetchMessages();
+  // }, [chatroom.id]);
+
   useEffect(() => {
     if (!chatroom.id) return;
 
-    const fetchMessages = async () => {
-      const loadedMessages = await getMessages(chatroom.id);
-      setMessages(loadedMessages);
-    };
+    const unsubscribe = getMessages(chatroom.id, (newMessages) => {
+      setMessages(newMessages);
+    });
 
-    fetchMessages();
+    return () => unsubscribe();
   }, [chatroom.id]);
 
   const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,30 +146,57 @@ export default function ChatRoomList({ slug }: { slug: string }) {
       locale: id,
       includeSeconds: true,
     });
-    // Split distance menjadi array
     const distanceArray = distance.split(" ");
-    // Jika waktu lebih dari 1 bulan yang lalu, hilangkan "yang lalu"
     if (distanceArray.includes("months") || distanceArray.includes("month")) {
-      distanceArray.pop(); // Hapus elemen terakhir
-      distanceArray.pop(); // Hapus elemen terakhir
+      distanceArray.pop();
+      distanceArray.pop();
     }
-    const modifiedDistance = distanceArray.join(" "); // Gabungkan kembali array
+    const modifiedDistance = distanceArray.join(" ");
     return modifiedDistance;
   }
 
-  // console.log("messgae",message);
-  // console.log("users chats", userChats);
-  // console.log("chatroom", chatroom);
   return (
     <>
-      <div className="flex flex-col gap-1 rounded-lg border lg:h-[84vh] md-h-[84vh] sm:h-[84vh] h-screen lg:w-[68%] w-full">
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="mb-2">
+              {chatroom.type === "group"
+                ? `${chatroom.name} Members`
+                : "Direct Chat"}
+            </DialogTitle>
+            <ScrollArea className="flex flex-col gap-2 max-h-[250px] ,b-">
+              {userInChatsRoom.length > 0 &&
+                userInChatsRoom.map((user: any) => (
+                  <ListUsers
+                    className={`${
+                      user.email === session?.user?.email ? "bg-muted" : ""
+                    }`}
+                    key={user.id}
+                    isValid={user.email !== session?.user?.email}
+                    leader={
+                      user.id === chatroom.createdBy
+                        ? "Leader"
+                        : "" || user.id === session?.user?.id
+                        ? "You"
+                        : ""
+                    }
+                    showMessage={true}
+                    data={user}
+                  />
+                ))}
+            </ScrollArea>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+      <div className="flex flex-col gap-1 rounded-lg border lg:h-[84vh] h-screen lg:w-[68%] w-full">
         <header className="flex items-center border-b py-2 lg:px-5 px-3 gap-2 bg-muted">
           <Button variant={"ghost"} onClick={() => router.back()} size={"icon"}>
             <ArrowLeft className="" />
             <span className="sr-only">Back</span>
           </Button>
           <div className="flex items-center gap-2">
-            <Avatar>
+            <Avatar onClick={() => setOpenDialog(true)}>
               <AvatarImage
                 src={userChats.profileUrl || "https://github.com/shadcn.png"}
               />
@@ -151,13 +206,15 @@ export default function ChatRoomList({ slug }: { slug: string }) {
               <h1 className="text-base font-semibold">
                 {type === "direct" ? userChats.fullname : chatroom.name}
               </h1>
-              {/* <span className="text-sm text-muted-foreground">
-                {data.email}
-              </span> */}
+              {chatroom.type === "group" && (
+                <p className="text-sm text-muted-foreground">
+                  {chatroom.users.length} members
+                </p>
+              )}
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 overflow-message">
+        <ScrollArea className="flex-1 p-6 space-y-4">
           {message &&
             message.length > 0 &&
             message.map((item: any) => (
@@ -178,18 +235,36 @@ export default function ChatRoomList({ slug }: { slug: string }) {
               />
             ))}
           {message && message.length === 0 && (
-            <div className={`flex items-start gap-2 h-[80vh]`}>
-              <h1>No Message</h1>
+            <div
+              className={`flex justify-center flex-col gap-5 items-center h-full mt-20`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="184"
+                height="152"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+              </svg>
+              <p className="text-center text-sm text-muted-foreground">
+                No messages yet
+              </p>
             </div>
           )}
-        </div>
+        </ScrollArea>
         <div className="w-full px-5 py-5 shadow-lg rounded-t-lg drop-shadow backdrop-blur-md">
           <form className="" onSubmit={handleMessageSubmit}>
             <div className="flex items-center justify-between w-full gap-5">
               <div className="w-full">
                 <Textarea
                   placeholder="Type your message..."
-                  className="flex h-[50px] max-h-[200px] min-h-0 items-center px-3 resize-none m-0 w-full dark:bg-transparent py-[10px] pr-[1rem] md:py-3.5 md:pr-[4rem] placeholder-black/50 dark:placeholder-white/50 pl-3 md:pl-4  overflow-message"
+                  className="flex h-[50px] max-h-[200px] min-h-0 items-center px-3 resize-none m-0 w-full dark:bg-transparent py-[10px] pr-[1rem] md:py-3.5 md:pr-[4rem] placeholder-black/50 dark:placeholder-white/50 pl-3 md:pl-4"
                   id="message"
                   name="message"
                   rows={1}
