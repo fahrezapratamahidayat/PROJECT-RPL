@@ -1,10 +1,9 @@
-
 import ConverSationList from "@/components/chat/conversationList";
 import ChatPanelLayout from "@/components/layouts/chatPanelLayout";
 import Navbar from "@/components/navigation/navbar";
 import Sidebar from "@/components/navigation/sidebar";
 
-export default function PageChats() {
+export default async function PageChats() {
   return (
     <>
       <div className="flex min-h-screen w-full flex-col ">
