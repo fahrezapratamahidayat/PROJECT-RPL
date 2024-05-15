@@ -42,15 +42,6 @@ export default function Navbar({ className }: { className?: string }) {
                   <span className="text-sm">Dashboard</span>
                 </Link>
                 <Link
-                  href="/projects"
-                  className={`${
-                    pathname === "/projects" ? "bg-secondary" : ""
-                  } flex items-center px-4 py-3 gap-5 hover:bg-secondary rounded-md font-semibold cursor-pointer`}
-                >
-                  <StickyNote className="h-5 w-5" />
-                  <span className="text-sm">Projects</span>
-                </Link>
-                <Link
                   href="/chats"
                   className={`${
                     pathname.startsWith("/chats") ? "bg-secondary" : ""
