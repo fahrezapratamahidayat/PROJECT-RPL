@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,9 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FormAddGroupChats from "../form/formAddGroupChats";
-import AvatarGroup from "../avatars/avatarGroup";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { ScrollArea } from "../ui/scroll-area";
+import { AvatarGroups } from "../avatars/avatarGroup";
 
 interface User {
   id: string;
@@ -220,9 +220,9 @@ export default function ConverSationList({
           <TabsContent value="group">
             <ScrollArea className="flex flex-col max-h-[33rem]">
               {chatrooms.map(
-                (chatroom) =>
+                (chatroom: any) =>
                   chatroom.type === "group" && (
-                    <AvatarGroup
+                    <AvatarGroups
                       key={chatroom.id}
                       data={chatroom}
                       slug={slug}
