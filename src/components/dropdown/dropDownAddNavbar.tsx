@@ -12,7 +12,6 @@ import DialogAddTasks from "../form/dialogFormAddTasks";
 import DialogFormAddTeam from "../form/dialogFormAddTeam";
 
 export function DropDownAddNavbar() {
-  const { data: session }: { data: any } = useSession();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalAddTeam, setModalTeam] = useState(false);
 
