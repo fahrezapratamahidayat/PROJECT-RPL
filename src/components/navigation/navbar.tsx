@@ -1,18 +1,14 @@
 "use client";
 import { DropdownAvatar } from "../dropdown/dropDownAvatar";
-import { AlignRight, Bell } from "lucide-react";
+import { AlignRight } from "lucide-react";
 import { DropDownAddNavbar } from "../dropdown/dropDownAddNavbar";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
-import {
-  CalendarFold,
-  Home,
-  MessageSquareMore,
-  StickyNote,
-} from "lucide-react";
+import { CalendarFold, Home, MessageSquareMore } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "../dark-mode-toggle";
+import PopoverNotification from "../dropdown/dropDownNotification";
 
 export default function Navbar({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -70,10 +66,7 @@ export default function Navbar({ className }: { className?: string }) {
           <div className="flex items-center w-max">
             <div className="flex items-center gap-5">
               <DropDownAddNavbar />
-              <div className="flex items-center relative hover:bg-secondary">
-                <Bell />
-                <div className="w-2 h-2 bg-red-500 rounded-full absolute top-0.5 left-3.5"></div>
-              </div>
+              <PopoverNotification />
               <ModeToggle />
               <DropdownAvatar />
             </div>
