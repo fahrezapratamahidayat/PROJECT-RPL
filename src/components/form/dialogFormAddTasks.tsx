@@ -39,6 +39,7 @@ import { useSession } from "next-auth/react";
 import { getTeams } from "@/services/teams/teams";
 import { useTeamsData } from "@/hooks/useTeams";
 import { ColorPicker } from "../ui/color-picker";
+import { useToast } from "../ui/use-toast";
 
 type Inputs = z.infer<typeof schemaAddTasksExtended>;
 
@@ -76,10 +77,10 @@ export default function DialogFormAddTasks({
       attachments: "",
     },
   });
+  const { toast } = useToast();
 
   const typeTask = form.watch("typeTask");
   const teams = useTeamsData(session?.user?.email, typeTask);
-
   async function onSubmit(data: Inputs) {
     const taskData: addTask = {
       title: data.title,
@@ -93,6 +94,19 @@ export default function DialogFormAddTasks({
       category: data.category || [],
       attachments: data.attachments,
     };
+
+    const isLeader = teams?.some((team) => team.leader === session?.user?.id);
+
+    if (!isLeader) {
+      toast({
+        title: "Failed",
+        description: "Only the team leader can add tasks",
+        duration: 2000,
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       if (
         data.typeTask === "teams" &&
@@ -341,7 +355,7 @@ export default function DialogFormAddTasks({
                             <MultiSelectFormField
                               options={teamsOptions}
                               onValueChange={field.onChange}
-                              placeholder="Select Category"
+                              placeholder="Select Team"
                               variant="inverted"
                               animation={2}
                               {...field}
