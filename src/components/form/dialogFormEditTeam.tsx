@@ -64,28 +64,28 @@ export default function DialogEditTeam({
     const members = selectedTeam?.members?.filter((email) => email);
     const combineMembers = [...members, ...data.members];
     const datas = {
-        id: selectedTeam.id,
-        name: data.name,
-        description: data.description,
-        members: combineMembers
-      }
+      id: selectedTeam.id,
+      name: data.name,
+      description: data.description,
+      members: combineMembers,
+    };
     const respone = await axios.post("/api/updateteams", {
-        ...datas
-    })
-    if(respone.data.status) {
-      setOpen(false)
-      setIsLoading(false)
+      ...datas,
+    });
+    if (respone.data.status) {
+      setOpen(false);
+      setIsLoading(false);
       toast({
         title: "Success",
         description: "Team created successfully",
-        duration: 2000
-      })
-    }else {
+        duration: 2000,
+      });
+    } else {
       toast({
         title: "Failed",
         description: "Failed to create team",
-        duration: 2000
-      })
+        duration: 2000,
+      });
     }
     form.reset();
   }
