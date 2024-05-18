@@ -36,12 +36,14 @@ export default function CardListTasks() {
     fetchTasksTeams();
   }, [fetchTasks, fetchTasksTeams]);
 
-   const handleStatusChange = (status: string) => {
+  const handleStatusChange = (status: string) => {
     setActiveStatus(status);
   };
 
-  const filteredTasks = tasksList.filter(task => 
-    (task.statusTask === activeStatus || activeStatus === "") && task.assigned.length === 0
+  const filteredTasks = tasksList.filter(
+    (task) =>
+      (task.statusTask === activeStatus || activeStatus === "") &&
+      task.assigned.length === 0
   );
   return (
     <>
@@ -86,23 +88,55 @@ export default function CardListTasks() {
           </div>
         </div>
         <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full">
-          <Button className={`mt-3 ${activeStatus === "" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("")}>
+          <Button
+            className={`mt-3 ${activeStatus === "" ? "bg-secondary" : ""}`}
+            variant={"outline"}
+            size="sm"
+            onClick={() => handleStatusChange("")}
+          >
             All
           </Button>
-          <Button className={`mt-3 ${activeStatus === "on going" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("on going")}>
+          <Button
+            className={`mt-3 ${
+              activeStatus === "on going" ? "bg-secondary" : ""
+            }`}
+            variant={"outline"}
+            size="sm"
+            onClick={() => handleStatusChange("on going")}
+          >
             On Going
           </Button>
-          <Button className={`mt-3 ${activeStatus === "completed" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("completed")}>
+          <Button
+            className={`mt-3 ${
+              activeStatus === "completed" ? "bg-secondary" : ""
+            }`}
+            variant={"outline"}
+            size="sm"
+            onClick={() => handleStatusChange("completed")}
+          >
             completed
           </Button>
-          <Button className={`mt-3 ${activeStatus === "pending" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("pending")}>
+          <Button
+            className={`mt-3 ${
+              activeStatus === "pending" ? "bg-secondary" : ""
+            }`}
+            variant={"outline"}
+            size="sm"
+            onClick={() => handleStatusChange("pending")}
+          >
             pending
           </Button>
-          <Button className={`mt-3 ${activeStatus === "cancel" ? "bg-secondary" : ""}`} variant={"outline"} size="sm" onClick={() => handleStatusChange("cancel")}>
+          <Button
+            className={`mt-3 ${
+              activeStatus === "cancel" ? "bg-secondary" : ""
+            }`}
+            variant={"outline"}
+            size="sm"
+            onClick={() => handleStatusChange("cancel")}
+          >
             cancel
           </Button>
         </div>
-        {/* <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full"></div> */}
         <div className="max-h-[320px] overflow-auto overflow-TaskList pr-1">
           {isLoading ? (
             <div className="flex justify-center items-center min-h-[12vh] gap-1">
@@ -119,9 +153,11 @@ export default function CardListTasks() {
                 task.dueDate,
                 "dd MMMM yyyy HH:mm:ss"
               );
+              const isOverdue = new Date() > new Date(task.dueTime);
               return (
                 <ListTasks
                   key={task.id}
+                  isOverdue={isOverdue}
                   link={task.id}
                   title={task.title}
                   description={task.description}
