@@ -6,7 +6,7 @@ export const schemaAddTasksExtended = z.object({
   typeTask: z.enum(["personal", "teams"]).refine(val => ["personal", "teams"].includes(val), { message: "Type Task is required" }),
   dueDate: z.string().min(1, { message: "Due Date is required" }),
   dueTime: z.string().min(1, { message: "Due Time is required" }),
-  priority: z.enum(["tinggi", "sedang", "kecil"]).refine(val => ["tinggi", "sedang", "kecil"].includes(val), { message: "Priority is required" }),
+  priority: z.enum(["High", "Medium", "Low"]).refine(val => ["High", "Medium", "Low"].includes(val), { message: "Priority is required" }),
   assigned: z
   .array(z.string().min(1))
   .max(10).optional(),
@@ -24,12 +24,12 @@ export const schemaEditTasks = z.object({
   typeTask: z.enum(["personal", "teams"]).refine(val => ["personal", "teams"].includes(val), { message: "Type Task is required" }).optional(),
   dueDate: z.string().min(1, { message: "Due Date is required" }).optional(),
   dueTime: z.string().min(1, { message: "Due Time is required" }).optional(),
-  priority: z.enum(["tinggi", "sedang", "kecil"]).refine(val => ["tinggi", "sedang", "kecil"].includes(val), { message: "Priority is required" }).optional(),
+  priority: z.enum(["High", "Medium", "Low"]).refine(val => ["High", "Medium", "Low"].includes(val), { message: "Priority is required" }).optional(),
   assigned: z
     .array(z.string().min(1))
     .max(10)
     .optional(),
-    statusTask: z.enum(["on going", "completed", "pending", "cancel"]).refine(val => ["on going", "completed", "pending", "cancel"].includes(val), { message: "Status Task is required" }).optional(),
+    statusTask: z.enum(["on going", "completed", "pending", "canceled"]).refine(val => ["on going", "completed", "pending", "canceled"].includes(val), { message: "Status Task is required" }).optional(),
 });
 
 export const schemaAddTeamsExtended = z.object({
@@ -47,8 +47,15 @@ export const schemaEditTeamsExtended = z.object({
 export const schemaAddSubstask = z.object({
   subname: z.string().min(1, { message: "Name is required" }),
   description: z.string().min(1, { message: "Description is required" }),
-  dueDate: z.string().min(1, { message: "Due Date is required" }),
-  dueTime: z.string().min(1, { message: "Due Time is required" }),
+  // dueDate: z.string().min(1, { message: "Due Date is required" }),
+  // dueTime: z.string().min(1, { message: "Due Time is required" }),
+})
+export const schemaEditSubstask = z.object({
+  subname: z.string().min(1, { message: "Name is required" }).optional(),
+  description: z.string().min(1, { message: "Description is required" }).optional(),
+  // dueDate: z.string().min(1, { message: "Due Date is required" }).optional(),
+  // dueTime: z.string().min(1, { message: "Due Time is required" }).optional(),
+  status: z.string().optional(),
 })
 
 // members: z.array(z.object({
