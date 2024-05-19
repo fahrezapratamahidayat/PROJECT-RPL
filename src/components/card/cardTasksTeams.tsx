@@ -12,6 +12,7 @@ import { formatDateString } from "@/utils/date";
 import DialogEditTasks from "../form/dialogFormEditTasks";
 import { useSession } from "next-auth/react";
 import { useToast } from "../ui/use-toast";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export default function CardTasksTeams() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function CardTasksTeams() {
   const [alertActive, setAlertActive] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TasksData>({} as TasksData);
   const [activeStatus, setActiveStatus] = useState("");
+  const [activePriority, setActivePriority] = useState("");
   const { data: session } = useSession();
   const { toast } = useToast();
 
@@ -33,15 +35,22 @@ export default function CardTasksTeams() {
     fetchTasksTeams();
   }, [fetchTasksTeams]);
 
-  const handleStatusChange = (status: string) => {
-    setActiveStatus(status);
+  const handleStatusChange = (status: string, type?: "status" | "priority") => {
+    if (type === "status") {
+      setActiveStatus(status);
+      setActivePriority("");
+    } else {
+      setActivePriority(status);
+      setActiveStatus("");
+    }
   };
 
-  const filteredTasks = tasksTeam.filter(
-    (task) =>
-      (task.statusTask === activeStatus || activeStatus === "") &&
-      task.assigned.length !== 0
-  );
+  const filteredTasks = tasksTeam.filter((task) => {
+    const statusMatch = task.statusTask === activeStatus || activeStatus === "";
+    const priorityMatch =
+      task.priority === activePriority || activePriority === "";
+    return statusMatch && priorityMatch && task.assigned.length === 0;
+  });
 
   return (
     <>
@@ -77,9 +86,14 @@ export default function CardTasksTeams() {
             <span className="lg:text-base text-sm font-bold">
               Task Priorities
             </span>
-            <p className="text-sm text-muted-foreground">
-              Teams tasks by {activeStatus ? activeStatus : "All"}
-            </p>
+            <span className="text-sm text-muted-foreground">
+              My Task Sorted{" "}
+              {activePriority === ""
+                ? activeStatus
+                : activePriority
+                ? "Priority"
+                : "Status"}
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <DialogAddTasks
@@ -90,62 +104,95 @@ export default function CardTasksTeams() {
               onTaskAdded={fetchTasksTeams}
               action="team"
             />
-            <Button className="px-2" variant={"ghost"}>
+            {/* <Button className="px-2" variant={"ghost"}>
               <GripVertical className="text-muted-foreground" />
               <span className="sr-only">Sort</span>
-            </Button>
+            </Button> */}
           </div>
         </div>
-        <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full">
-          <Button
-            className={`mt-3 ${activeStatus === "" ? "bg-secondary" : ""}`}
-            variant={"outline"}
-            size="sm"
-            onClick={() => handleStatusChange("")}
-          >
-            All
-          </Button>
-          <Button
-            className={`mt-3 ${
-              activeStatus === "on going" ? "bg-secondary" : ""
-            }`}
-            variant={"outline"}
-            size="sm"
-            onClick={() => handleStatusChange("on going")}
-          >
-            On Going
-          </Button>
-          <Button
-            className={`mt-3 ${
-              activeStatus === "completed" ? "bg-secondary" : ""
-            }`}
-            variant={"outline"}
-            size="sm"
-            onClick={() => handleStatusChange("completed")}
-          >
-            completed
-          </Button>
-          <Button
-            className={`mt-3 ${
-              activeStatus === "pending" ? "bg-secondary" : ""
-            }`}
-            variant={"outline"}
-            size="sm"
-            onClick={() => handleStatusChange("pending")}
-          >
-            pending
-          </Button>
-          <Button
-            className={`mt-3 ${
-              activeStatus === "cancel" ? "bg-secondary" : ""
-            }`}
-            variant={"outline"}
-            size="sm"
-            onClick={() => handleStatusChange("cancel")}
-          >
-            cancel
-          </Button>
-        </div>
+        <ScrollArea>
+          <div className="flex items-center lg:gap-2 gap-1 lg:flex-nowrap flex-wrap h-full w-max py-3">
+            <Button
+              className={`mt-3 ${activeStatus === "" ? "bg-secondary" : ""}`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("")}
+            >
+              All
+            </Button>
+            <Button
+              className={`mt-3 ${
+                activeStatus === "on going" ? "bg-secondary" : ""
+              }`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("on going")}
+            >
+              On Going
+            </Button>
+            <Button
+              className={`mt-3 ${
+                activeStatus === "completed" ? "bg-secondary" : ""
+              }`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("completed")}
+            >
+              completed
+            </Button>
+            <Button
+              className={`mt-3 ${
+                activeStatus === "pending" ? "bg-secondary" : ""
+              }`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("pending")}
+            >
+              pending
+            </Button>
+            <Button
+              className={`mt-3 ${
+                activeStatus === "cancel" ? "bg-secondary" : ""
+              }`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("cancel")}
+            >
+              cancel
+            </Button>
+            <Button
+              className={`mt-3 ${
+                activePriority === "High" ? "bg-secondary" : ""
+              }`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("High", "priority")}
+            >
+              Priority High
+            </Button>
+            <Button
+              className={`mt-3 ${
+                activePriority === "Medium" ? "bg-secondary" : ""
+              }`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("Medium", "priority")}
+            >
+              Priority Medium
+            </Button>
+            <Button
+              className={`mt-3 ${
+                activePriority === "Low" ? "bg-secondary" : ""
+              }`}
+              variant={"outline"}
+              size="sm"
+              onClick={() => handleStatusChange("Low", "priority")}
+            >
+              Priority Low
+            </Button>
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
         <div className="max-h-[320px] overflow-auto overflow-TaskList pr-1">
           {isLoading ? (
             <div className="flex justify-center items-center min-h-[12vh] gap-1">
