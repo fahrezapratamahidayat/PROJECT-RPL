@@ -91,11 +91,14 @@ export async function updateTaskWithModules(taskData: Module) {
     if (!taskData.subid) {
       taskData.subid = await randomId();
     }
-    if (!['Pending', 'In Progress', 'Completed'].includes(taskData.status)) {
-      taskData.status = 'In Progress';
+    if(!taskData.isCompleted) {
+      taskData.isCompleted = false;
     }
-    if (!taskData.progress && taskData.progress !== 0) {
-      taskData.progress = 0;
+    if (!taskData.dueDate) {
+      taskData.dueDate = 'not set';
+    }
+    if (!taskData.dueTime) {
+      taskData.dueTime = 'not set';
     }
     const docRef = doc(firestore, "tasks", taskData.id);
     await updateDoc(docRef, {
@@ -115,6 +118,97 @@ export async function updateTaskWithModules(taskData: Module) {
   }
 }
 
+export async function updateSubtask(subtaskData: Module) {
+  try {
+    const docRef = doc(firestore, "tasks", subtaskData.id);
+    const taskSnapshot = await getDoc(docRef);
+
+    if (!taskSnapshot.exists()) {
+      return {
+        status: false,
+        statusCode: 404,
+        message: "Task tidak ditemukan"
+      };
+    }
+
+    const task = taskSnapshot.data();
+    const modules = task.modules || [];
+    const existingSubtask = modules.find((m: Module)=> m.subid === subtaskData.subid);
+    if (!existingSubtask) {
+      return {
+        status: false,
+        statusCode: 404,
+        message: "Subtask tidak ditemukan"
+      };
+    }
+
+    await updateDoc(docRef, {
+      modules: arrayRemove(existingSubtask)
+    });
+
+    const updatedSubtask = { ...existingSubtask, ...subtaskData };
+    await updateDoc(docRef, {
+      modules: arrayUnion(updatedSubtask)
+    });
+
+    return {
+      status: true,
+      statusCode: 200,
+      message: "Subtask berhasil diperbarui"
+    };
+  } catch (error) {
+    return {
+      status: false,
+      statusCode: 400,
+      message: "Gagal memperbarui subtask, silakan coba lagi nanti"
+    };
+  }
+}
+
+export async function deleteSubTask(subtaskData: Module) {
+  try {
+    const docRef = doc(firestore, "tasks", subtaskData.id);
+    const taskSnapshot = await getDoc(docRef);
+
+    if (!taskSnapshot.exists()) {
+      return {
+        status: false,
+        statusCode: 404,
+        message: "Task tidak ditemukan"
+      };
+    }
+
+    const task = taskSnapshot.data();
+    const modules = task.modules || [];
+    const existingSubtask = modules.find((m: Module) => m.subid === subtaskData.subid);
+
+    if (!existingSubtask) {
+      return {
+        status: false,
+        statusCode: 404,
+        message: "Subtask tidak ditemukan"
+      };
+    }
+
+    await updateDoc(docRef, {
+      modules: arrayRemove(existingSubtask)
+    });
+
+    return {
+      status: true,
+      statusCode: 200,
+      message: "Subtask berhasil dihapus"
+    };
+  } catch (error) {
+    return {
+      status: false,
+      statusCode: 400,
+      message: "Gagal menghapus subtask, silakan coba lagi nanti"
+    };
+  }
+}
+
+
 export async function AddTaskTeams(taskData: TasksData) {
   if (!taskData.modules) {
     taskData.modules = [];
@@ -126,7 +220,7 @@ export async function AddTaskTeams(taskData: TasksData) {
         taskData.status = false;
     }
     if (!taskData.statusTask) {
-        taskData.statusTask = "In Progress";
+        taskData.statusTask = "on going";
     }
     taskData.created_At = new Date();
     try {
@@ -219,13 +313,13 @@ export async function getTaskTeams(email: string) {
 //     }
 // }
 
-// function deleteTaskFromArray(taskId: string, userData: any) {
-//   const updatedTasks = userData.tasks.filter((task: any) => task.taskId !== taskId);
-//   return {
-//     ...userData,
-//     tasks: updatedTasks,
-//   };
-// }
+function deleteTaskFromArray(taskId: string, userData: any) {
+  const updatedTasks = userData.tasks.filter((task: any) => task.taskId !== taskId);
+  return {
+    ...userData,
+    tasks: updatedTasks,
+  };
+}
 
 // export async function deleteTask(data: {
 //   userId: string;
