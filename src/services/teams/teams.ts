@@ -23,8 +23,8 @@ export async function addTeams(teamsData: teamsData) {
     }
 }
 
-export function getTeams(email: string, callback: (teams: any[]) => void) {
-    const q = query(collection(firestore, "teams"), where("members", "array-contains", email));
+export function getTeams(id: string, callback: (teams: any[]) => void) {
+    const q = query(collection(firestore, "teams"), where("members", "array-contains", id));
     return onSnapshot(q, (querySnapshot) => {
         const teams = querySnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -33,6 +33,18 @@ export function getTeams(email: string, callback: (teams: any[]) => void) {
         callback(teams);
     });
 }
+
+export const updateTeamWithChatLink = async (teamId: string, chatRoomId: string, callback: (success: boolean) => void) => {
+    try {
+        const teamRef = doc(firestore, "teams", teamId);
+        await updateDoc(teamRef, {
+            linkGroup: `${chatRoomId}`
+        });
+        callback(true);
+    } catch (error) {
+        callback(false)
+    }
+};
 
 export async function deleteTeams(id: string) {
     try {
@@ -57,7 +69,7 @@ export async function leaveTeam(teamId: string, email: string, callback: (succes
     try {
         const teamRef = doc(firestore, "teams", teamId);
         const teamData = await getDoc(teamRef);
-        if(teamData.exists()){
+        if (teamData.exists()) {
             const members = teamData.data().members;
             const index = members.findIndex((member: string) => member === email);
             members.splice(index, 1);
@@ -79,7 +91,7 @@ export async function addMembers(teamId: string, email: string, callback: (succe
     try {
         const teamRef = doc(firestore, "teams", teamId);
         const teamData = await getDoc(teamRef);
-        if(teamData.exists()){
+        if (teamData.exists()) {
             const members = teamData.data().members;
             members.push(email);
         }
@@ -92,7 +104,7 @@ export async function removeMembers(teamId: string, email: string, callback: (su
     try {
         const teamRef = doc(firestore, "teams", teamId);
         const teamData = await getDoc(teamRef);
-        if(teamData.exists()){
+        if (teamData.exists()) {
             const members = teamData.data().members;
             const index = members.findIndex((member: string) => member === email);
             members.splice(index, 1);
