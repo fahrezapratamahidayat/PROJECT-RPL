@@ -34,7 +34,7 @@ export default function PopoverNotification() {
       return (
         dueTime >= now &&
         dueTime <= threeDaysAhead &&
-        task.statusTask !== "cancel"
+        task.statusTask !== "canceled"
       );
     });
 
@@ -55,7 +55,6 @@ export default function PopoverNotification() {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
   return (
     <>
       <Popover>
