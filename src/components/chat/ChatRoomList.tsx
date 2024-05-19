@@ -10,6 +10,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  getGroupChatRoom,
   getMessages,
   getOrCreateChatRoom,
   sendMessage,
@@ -83,12 +84,7 @@ export default function ChatRoomList({ slug }: { slug: string }) {
           setChatroom(chatRoom);
         }
       } else if (type === "group") {
-        const chatRoom = await getOrCreateChatRoom(
-          [user.id],
-          "group",
-          undefined,
-          undefined
-        );
+        const chatRoom = await getGroupChatRoom(slug);
         if (chatRoom?.users) {
           const getUsersDataInTeams = await getUsersByIds(chatRoom.users);
           setUserInChatsRoom(getUsersDataInTeams);
@@ -161,9 +157,11 @@ export default function ChatRoomList({ slug }: { slug: string }) {
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
             <DialogTitle className="mb-2">
-              {chatroom.type === "group"
-                ? `${chatroom.name} Members`
-                : "Direct Chat"}
+              <div className="flex flex-wrap">
+                {chatroom.type === "group"
+                  ? `${chatroom.name} - Members`
+                  : "Direct Chat"}
+              </div>
             </DialogTitle>
             <ScrollArea className="flex flex-col gap-2 max-h-[250px] ,b-">
               {userInChatsRoom.length > 0 &&
@@ -229,7 +227,7 @@ export default function ChatRoomList({ slug }: { slug: string }) {
                 date={timeStapHandle(item)}
                 className={`${
                   item.sender === session?.user?.id
-                    ? "flex-row-reverse mr-1"
+                    ? "flex-row-reverse mr-1 mt-2"
                     : "flex-row"
                 }`}
               />
@@ -264,7 +262,7 @@ export default function ChatRoomList({ slug }: { slug: string }) {
               <div className="w-full">
                 <Textarea
                   placeholder="Type your message..."
-                  className="flex h-[50px] max-h-[200px] min-h-0 items-center px-3 resize-none m-0 w-full dark:bg-transparent py-[10px] pr-[1rem] md:py-3.5 md:pr-[4rem] placeholder-black/50 dark:placeholder-white/50 pl-3 md:pl-4"
+                  className="flex h-[50px] overflow-message max-h-[200px] min-h-0 items-center px-3 resize-none m-0 w-full dark:bg-transparent py-[10px] pr-[1rem] md:py-3.5 md:pr-[4rem] placeholder-black/50 dark:placeholder-white/50 pl-3 md:pl-4"
                   id="message"
                   name="message"
                   rows={1}
@@ -275,6 +273,15 @@ export default function ChatRoomList({ slug }: { slug: string }) {
                     const textarea = e.target as HTMLTextAreaElement;
                     textarea.style.height = "auto";
                     textarea.style.height = `${textarea.scrollHeight}px`;
+                  }}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleMessageSubmit(
+                        e as unknown as React.FormEvent<HTMLFormElement>
+                      );
+                      setMessageInput("");
+                    }
                   }}
                 />
               </div>
