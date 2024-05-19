@@ -172,6 +172,7 @@ export default function CardTasksTeams() {
                   deadline={formattedDeadline}
                   created_At={formattedCreatedAt}
                   isOverdue={isOverdue}
+                  statusTask={task.statusTask}
                   showAlertDelete={() => {
                     setAlertActive(!alertActive);
                     setSelectedTask({
