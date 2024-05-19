@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "@fontsource/roboto/700.css";
 import LayoutProvider from "@/components/layouts/layoutProviders";
 import { ThemeProvider } from "@/components/theme-provider";
 
