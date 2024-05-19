@@ -116,13 +116,14 @@ export default function DialogEditTasks({
       typeTask: selectedTask.typeTask as "personal" | "teams" | undefined,
       dueDate: selectedTask.dueDate || "",
       dueTime: selectedTask.dueTime || "",
-      priority: selectedTask.priority as
-        | "tinggi"
-        | "sedang"
-        | "kecil"
-        | undefined,
+      priority: selectedTask.priority as "High" | "Medium" | "Low" | undefined,
       assigned: selectedTask.assigned || [],
-      statusTask: selectedTask.statusTask as | "on going" | "completed" | "pending" | "cancel" | undefined,
+      statusTask: selectedTask.statusTask as
+        | "on going"
+        | "completed"
+        | "pending"
+        | "canceled"
+        | undefined,
     });
   }, [selectedTask, form.reset, form]);
   const teamsOptions = teams?.map((team) => ({
@@ -316,9 +317,9 @@ export default function DialogEditTasks({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="tinggi">Tinggi</SelectItem>
-                            <SelectItem value="sedang">Sedang</SelectItem>
-                            <SelectItem value="kecil">Kecil</SelectItem>
+                            <SelectItem value="High">High</SelectItem>
+                            <SelectItem value="Medium">Medium</SelectItem>
+                            <SelectItem value="Low">Low</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -344,7 +345,7 @@ export default function DialogEditTasks({
                             <SelectItem value="on going">On going</SelectItem>
                             <SelectItem value="completed">completed</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="cancel">cancel</SelectItem>
+                            <SelectItem value="canceled">cancel</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
