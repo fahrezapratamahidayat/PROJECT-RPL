@@ -82,8 +82,6 @@ export default function Home() {
       });
       return;
     }
-    alert(JSON.stringify(data, null, 4));
-    console.log(data);
   }
 
   return (
