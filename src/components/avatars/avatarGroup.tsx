@@ -53,7 +53,7 @@ const AvatarGroups = React.forwardRef<HTMLAnchorElement, AvatarGroupProps>(
   ) => {
     return (
       <Link
-        href={hrefActive ? `/teams/${data.id}` : ""}
+        href={hrefActive ? `/chats/${data.id}?type=group` : ""}
         className={cn(buttonVariants({ variant, className }))}
         {...props}
         ref={ref}
