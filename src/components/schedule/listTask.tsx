@@ -50,11 +50,13 @@ export default function ListTasks({
                     Canceled
                   </Badge>
                 )}
-                {type === "task" && statusTask === "completed" && (
-                  <Badge className="ml-2 bg-success text-white">
-                    Compeleted
-                  </Badge>
-                )}
+                {type === "task" &&
+                  statusTask === "completed" &&
+                  isOverdue === false && (
+                    <Badge className="ml-2 bg-success text-white">
+                      Compeleted
+                    </Badge>
+                  )}
                 {/* {type === "task" && statusTask === "on going" && (
                   <Badge className="ml-2 bg-blue-500 text-white">
                     On going
