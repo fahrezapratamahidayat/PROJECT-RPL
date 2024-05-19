@@ -43,11 +43,11 @@ export function CardDialogEvents({
 }) {
   function priorityClass(priority: string) {
     switch (priority.toLowerCase()) {
-      case "tinggi":
+      case "High":
         return "bg-red-500";
-      case "sedang":
+      case "Medium":
         return "bg-yellow-500";
-      case "kecil":
+      case "Low":
         return "bg-green-500";
       default:
         return "text-gray-500 bg-gray-200";
