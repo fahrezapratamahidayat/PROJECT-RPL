@@ -87,7 +87,7 @@ export default function CardTasksTeams() {
               Task Priorities
             </span>
             <span className="text-sm text-muted-foreground">
-              My Task Sorted{" "}
+              Teams Task Sorted by {" "}
               {activePriority === ""
                 ? activeStatus
                 : activePriority
