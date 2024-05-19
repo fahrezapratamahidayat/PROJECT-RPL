@@ -163,6 +163,7 @@ export default function CardListTasks() {
                   description={task.description}
                   deadline={formattedDeadline}
                   created_At={formattedCreatedAt}
+                  statusTask={task.statusTask}
                   showAlertDelete={() => {
                     setAlertActive(!alertActive);
                     setSelectedTask({
