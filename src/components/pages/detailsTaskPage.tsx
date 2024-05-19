@@ -19,6 +19,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CircularProgress } from "@mui/material";
+import DialogFormEditSubTask from "../form/dialogFormEditSubTask";
+import AlertDeleteTask from "../alert/alertdelete";
+import axios from "axios";
+import { useToast } from "../ui/use-toast";
+import { ScrollArea } from "../ui/scroll-area";
 
 export default function DetailsTaskPage({
   params,
@@ -34,6 +40,8 @@ export default function DetailsTaskPage({
   const [selectedTask, setSelectedTask] = useState<Module>({} as Module);
   const [alertActive, setAlertActive] = useState(false);
   const [formActive, setFormActive] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const { toast } = useToast();
 
   const teams = useTeamsData(session?.user?.email, "teams");
   const slug = params.slug[0];
@@ -44,47 +52,116 @@ export default function DetailsTaskPage({
   }, [fetchTasks, fetchTasksTeams]);
 
   useEffect(() => {
+    if (filteredTask && filteredTask.modules) {
+      const totalMilestones = filteredTask.modules.length;
+      const completedMilestones = filteredTask.modules.filter(
+        (m) => m.status === "Completed"
+      ).length;
+      const calculatedProgress =
+        totalMilestones > 0 ? (completedMilestones / totalMilestones) * 100 : 0;
+      setProgress(calculatedProgress);
+    }
+  }, [filteredTask]);
+
+  useEffect(() => {
     const slug = params.slug[0];
     const result = tasksList.filter((task) => task.id === slug);
     setFilteredTask(result[0]);
   }, [params.slug, tasksList]);
 
-  function priorityClass(priority: string) {
-    switch (priority.toLowerCase()) {
-      case "tinggi":
-        return "bg-red-500";
-      case "sedang":
-        return "bg-yellow-500";
-      case "kecil":
-        return "bg-green-500";
-      default:
-        return "text-gray-500 bg-gray-200";
-    }
-  }
-
   const teamsOptions = teams?.map((team) => ({
     label: team.name,
     members: team.members.join(", "),
   }));
+
+  const handledeleteSub = async () => {
+    try {
+      const respone = await axios.post("/api/deletesub", {
+        ...selectedTask,
+      });
+      if (respone.status === 200) {
+        toast({
+          title: "Success",
+          description: "Sub Task deleted successfully",
+          duration: 2000,
+        });
+      } else {
+        toast({
+          title: "Failed",
+          description: "Failed to delete Sub Task",
+          duration: 2000,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Failed",
+        description: error.message,
+        duration: 2000,
+        variant: "destructive",
+      });
+    } finally {
+      setAlertActive(false);
+      if (filteredTask) {
+        fetchTasks();
+      }
+    }
+  };
   return (
     <>
-      <div className="py-7 px-3 lg:px-7 flex flex-col gap-4">
+      <AlertDeleteTask
+        isOpen={alertActive}
+        setIsOpen={setAlertActive}
+        data={selectedTask}
+        onClickDelete={handledeleteSub}
+        onDelete={fetchTasks}
+      />
+      <DialogFormEditSubTask
+        slug={slug}
+        isOpen={formActive}
+        setIsOpen={setFormActive}
+        title="Edit Sub Task"
+        selectedTask={selectedTask}
+        setSelectedTask={setSelectedTask}
+        onSubTaskAdded={fetchTasks}
+      />
+      <div className="py-7 px-3 lg:px-7 gap-4">
         <div className="border flex flex-col justify-center gap-3 px-4 py-4 rounded-lg ">
-          <h1 className="text-2xl font-semibold">Task Details</h1>
-          <div className="flex flex-col gap-1">
-            <h1 className="font-bold text-base">Task Name</h1>
-            <span className="text-sm font-medium">
-              {filteredTask?.title
-                ? filteredTask.title.charAt(0).toUpperCase() +
-                  filteredTask.title.slice(1)
-                : "Title not available"}
-            </span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <h1 className="font-bold text-base">Description</h1>
-            <p className="text-sm font-medium text-muted-foreground text-justify">
-              {filteredTask?.description ?? "Description not available"}
-            </p>
+          {/* <h1 className="text-2xl font-semibold">Task Details</h1> */}
+          <div className="flex">
+            <div className="w-3/4">
+              <div className="flex flex-col gap-1">
+                <h1 className="font-bold text-base">Task Name</h1>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {filteredTask?.title
+                    ? filteredTask.title.charAt(0).toUpperCase() +
+                      filteredTask.title.slice(1)
+                    : "Title not available"}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <h1 className="font-bold text-base">Description</h1>
+                <p className="text-sm font-medium text-muted-foreground text-justify">
+                  {filteredTask?.description ?? "Description not available"}
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. At
+                  perferendis maiores, numquam culpa tempora dolorum delectus ea
+                  nobis eius laborum, nisi quam sapiente. Modi, eveniet. Minima
+                  assumenda iste ratione. Officia.
+                </p>
+              </div>
+            </div>
+            <div className="relative w-fit ml-auto">
+              <CircularProgress
+                variant="determinate"
+                value={progress}
+                size={100}
+              />
+              <div className="absolute top-10 left-1/2 -translate-x-1/2  flex items-center justify-center">
+                <span className="text-sm font-medium text-white text-center">
+                  {progress.toFixed(2)}%
+                </span>
+              </div>
+            </div>
           </div>
           <Separator className="border" />
           <div className="flex-flex-col">
@@ -212,7 +289,16 @@ export default function DetailsTaskPage({
             </div>
             <DialogFormAddSubTask
               isOpen={modalOpen}
-              setIsOpen={setModalOpen}
+              setIsOpen={() => {
+                if (filteredTask?.createdBy === session?.user?.id) {
+                  setModalOpen(!modalOpen);
+                } else {
+                  toast({
+                    description: "You are not allowed to add sub task",
+                    variant: "destructive",
+                  });
+                }
+              }}
               title="Add Sub Task"
               slug={slug}
               onSubTaskAdded={fetchTasks}
@@ -234,9 +320,11 @@ export default function DetailsTaskPage({
                     title={module.subname}
                     key={module.subid}
                     link={module.subid}
-                    deadline={formattedDeadline}
-                    created_At={formattedCreatedAt}
+                    type="subtask"
+                    deadline={module.dueTime}
+                    created_At={module.dueDate}
                     description={module.description}
+                    status={module.status}
                     showAlertDelete={() => {
                       setAlertActive(!alertActive);
                       setSelectedTask({
