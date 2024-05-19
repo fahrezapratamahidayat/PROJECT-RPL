@@ -142,7 +142,6 @@ export default function ConverSationList({
     });
     return Array.from(allUsers);
   }, [chatrooms]);
-
   return (
     <>
       <div
@@ -226,6 +225,7 @@ export default function ConverSationList({
                       key={chatroom.id}
                       data={chatroom}
                       slug={slug}
+                      hrefActive={true}
                     />
                   )
               )}
