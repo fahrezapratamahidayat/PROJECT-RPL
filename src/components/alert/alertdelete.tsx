@@ -18,11 +18,13 @@ export default function AlertDeleteTask({
   setIsOpen,
   data,
   onClickDelete,
+  onDelete
 }: {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   data: any;
   onClickDelete: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <>
