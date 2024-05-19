@@ -55,8 +55,6 @@ export default function DialogFormAddSubTask({
     defaultValues: {
       subname: "",
       description: "",
-      dueDate: "",
-      dueTime: "",
     },
   });
 
@@ -145,7 +143,7 @@ export default function DialogFormAddSubTask({
                     </FormItem>
                   )}
                 />
-                <div className="flex lg:items-center items-start justify-between w-full gap-2 lg:flex-row flex-wrap sm:flex-row md:flex-row">
+                {/* <div className="flex lg:items-center items-start justify-between w-full gap-2 lg:flex-row flex-wrap sm:flex-row md:flex-row">
                   <FormField
                     control={form.control}
                     name="dueDate"
@@ -180,7 +178,7 @@ export default function DialogFormAddSubTask({
                       </FormItem>
                     )}
                   />
-                </div>
+                </div> */}
               </div>
               {isLoading ? (
                 <Button className="mt-2 w-full" disabled>
