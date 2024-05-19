@@ -82,6 +82,25 @@ export const getUsersByEmails = async (emails: string[]) => {
     return usersData;
 }
 
+export const getUserByIds = async (ids: string[]) => {
+    const usersData = [];
+    for (const id of ids) {
+        const userRef = doc(firestore, "users", id);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            usersData.push({
+                id: docSnap.id,
+                email: userData.email,
+                fullname: userData.fullname,
+                idp: userData.idp,
+                profileUrl: userData.profileUrl || "https://github.com/shadcn.png",
+            });
+        }
+    }
+    return usersData;
+}
+
 export const getUsersByIds = async (ids: string[]) => {
     const usersData = [];
     for (const id of ids) {
