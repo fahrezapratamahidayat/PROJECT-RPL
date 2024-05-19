@@ -3,7 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Edit2, Ellipsis, Loader2, LogOut, Trash } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
-import { getTeams, leaveTeam } from "@/services/teams/teams";
+import {
+  getTeams,
+  leaveTeam,
+  updateTeamWithChatLink,
+} from "@/services/teams/teams";
 import { useSession } from "next-auth/react";
 import { Button } from "../ui/button";
 import {
@@ -34,10 +38,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getUsersByEmails } from "@/services/users/getUser";
+import { getUserByIds, getUsersByEmails } from "@/services/users/getUser";
 import ListUsers from "../chat/listUsers";
 import { ScrollArea } from "../ui/scroll-area";
 import DialogEditTeam from "../form/dialogFormEditTeam";
+import { ChatBubbleIcon } from "@radix-ui/react-icons";
+import { getOrCreateChatRoom } from "@/services/chatting/chattings";
+import { useRouter } from "next/navigation";
 
 type teamsDataType = {
   id: string;
@@ -47,6 +54,7 @@ type teamsDataType = {
   members: any[];
   created_At?: Date;
   updated_At?: Date;
+  linkGroup?: string;
 };
 export default function CardTeams() {
   const [teams, setTeams] = useState<teamsDataType[]>([]);
@@ -57,18 +65,19 @@ export default function CardTeams() {
   const [openDialogMembers, setOpenDialogMembers] = useState(false);
   const [dialogEditTeam, setDialogEditTeam] = useState(false);
   const [membersData, setMembersData] = useState<any[]>([]);
+  const router = useRouter();
 
   const [selectedTeam, setSelectedTeam] = useState<teamsDataType>(
     {} as teamsDataType
   );
   const [actionType, setActionType] = useState<"delete" | "leave" | null>(null);
   useEffect(() => {
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       setIsLoading(false);
       return;
     }
     setIsLoading(true);
-    const unsubscribe = getTeams(session?.user?.email, (updatedTeams) => {
+    const unsubscribe = getTeams(session?.user?.id, (updatedTeams) => {
       setTeams(updatedTeams);
       setIsLoading(false);
     });
@@ -77,7 +86,7 @@ export default function CardTeams() {
       unsubscribe();
       setIsLoading(false);
     };
-  }, [session?.user?.email]);
+  }, [session?.user?.id]);
   const confirmAction = () => {
     if (actionType === "delete") {
       handleDeleteTeam(selectedTeam.id);
@@ -154,9 +163,9 @@ export default function CardTeams() {
     setOpenDialogMembers(true);
     setSelectedTeam(selectedTeam);
     if (selectedTeam.members) {
-      const emails = selectedTeam.members.filter((email) => email);
-      if (emails.length > 0) {
-        const usersData = await getUsersByEmails(emails);
+      const id = selectedTeam.members.filter((id) => id);
+      if (id.length > 0) {
+        const usersData = await getUserByIds(id);
         usersData.sort((a, b) => {
           if (a.email === session?.user?.email) return -1;
           if (b.email === session?.user?.email) return 1;
@@ -172,6 +181,49 @@ export default function CardTeams() {
   const handleEditTeam = (selectedTeam: teamsDataType) => {
     setDialogEditTeam(true);
     setSelectedTeam(selectedTeam);
+  };
+  const handleCreateAndUpdateGroupChat = async (
+    selectedTeam: teamsDataType
+  ) => {
+    try {
+      const members = selectedTeam.members.filter(
+        (member): member is string => member !== undefined
+      );
+      alert(JSON.stringify(members, null, 2));
+      const chatRoom = await getOrCreateChatRoom(
+        members,
+        "group",
+        selectedTeam.name,
+        undefined
+      );
+      if (chatRoom && chatRoom.id && selectedTeam.id) {
+        updateTeamWithChatLink(
+          selectedTeam.id,
+          chatRoom.id,
+          (success: boolean) => {
+            if (success) {
+              toast({
+                title: "Success",
+                description:
+                  "Team updated with new group chat link successfully.",
+                duration: 2000,
+                variant: "success",
+              });
+            } else {
+              toast({
+                title: "Failed",
+                description: "Failed to update team with new group chat link.",
+                duration: 2000,
+                variant: "destructive",
+              });
+            }
+          }
+        );
+      }
+    } catch (error: any) {
+      console.error("Error creating group chat room:", error);
+      alert(`Failed to create group chat room: ${error.message}`);
+    }
   };
   return (
     <>
@@ -202,17 +254,39 @@ export default function CardTeams() {
       <Dialog open={openDialogMembers} onOpenChange={setOpenDialogMembers}>
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
-            <DialogTitle className="mb-2">{selectedTeam.name} - Members</DialogTitle>
-              <ScrollArea className="flex flex-col gap-2 max-h-[250px]">
-                {membersData.length > 0 &&
-                  membersData.map((user) => (
-                    <ListUsers className={`${user.email === session?.user?.email ? "bg-muted" : ""}`} key={user.id} isValid={user.email !== session?.user?.email} leader={user.email === selectedTeam.leader ? "Leader" : "" || user.email === session?.user?.email ? "You" : ""} showMessage={true} data={user} />
-                  ))}
-              </ScrollArea>
+            <DialogTitle className="mb-2">
+              {selectedTeam.name} - Members
+            </DialogTitle>
+            <ScrollArea className="flex flex-col gap-2 max-h-[250px]">
+              {membersData.length > 0 &&
+                membersData.map((user) => (
+                  <ListUsers
+                    className={`${
+                      user.email === session?.user?.email ? "bg-muted" : ""
+                    }`}
+                    key={user.id}
+                    isValid={user.email !== session?.user?.email}
+                    leader={
+                      user.email === selectedTeam.leader
+                        ? "Leader"
+                        : "" || user.email === session?.user?.email
+                        ? "You"
+                        : ""
+                    }
+                    showMessage={true}
+                    data={user}
+                  />
+                ))}
+            </ScrollArea>
           </DialogHeader>
         </DialogContent>
       </Dialog>
-      <DialogEditTeam open={dialogEditTeam} setOpen={setDialogEditTeam} selectedTeam={selectedTeam} title="Edit Team" />
+      <DialogEditTeam
+        open={dialogEditTeam}
+        setOpen={setDialogEditTeam}
+        selectedTeam={selectedTeam}
+        title="Edit Team"
+      />
       <div className="border flex flex-col justify-center px-3 py-3 gap-3 rounded-lg w-full">
         <div className="flex flex-col">
           <h1 className="text-lg font-bold ">My Teams</h1>
@@ -242,6 +316,12 @@ export default function CardTeams() {
                   }}
                   showMembers={() => handleShowMembers(cardData)}
                   onClickEdit={() => handleEditTeam(cardData)}
+                  onClickGroup={() => {
+                    if (!cardData.linkGroup) {
+                      handleCreateAndUpdateGroupChat(cardData);
+                    }
+                    router.push(`/chats/${cardData.linkGroup}?type=group`);
+                  }}
                 />
               ))}
             </div>
@@ -261,13 +341,15 @@ const CardTeam = ({
   onCLickDelete,
   onClickLeave,
   showMembers,
-  onClickEdit
+  onClickEdit,
+  onClickGroup,
 }: {
   cardData: teamsDataType;
   onCLickDelete: () => void;
   onClickLeave: () => void;
   showMembers?: () => void;
-  onClickEdit?: () => void
+  onClickEdit?: () => void;
+  onClickGroup?: () => void;
 }) => {
   return (
     <Card>
@@ -281,6 +363,10 @@ const CardTeam = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuGroup>
+                <DropdownMenuItem className="" onClick={onClickGroup}>
+                  <ChatBubbleIcon className="mr-2 h-4 w-4" />
+                  Group
+                </DropdownMenuItem>
                 <DropdownMenuItem className="" onClick={onCLickDelete}>
                   <Trash className="mr-2 h-4 w-4" />
                   Delete
