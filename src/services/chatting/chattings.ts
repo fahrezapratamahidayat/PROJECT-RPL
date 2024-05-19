@@ -67,6 +67,18 @@ export const getOrCreateChatRoom = async (users: string[], action: 'create' | 'j
     }
   }
 };
+
+export const getGroupChatRoom = async (chatRoomId: string): Promise<ChatRoom | null> => {
+  const chatRoomRef = doc(firestore, "chatrooms", chatRoomId);
+  const docSnap = await getDoc(chatRoomRef);
+
+  if (docSnap.exists() && docSnap.data().type === "group") {
+    return { id: docSnap.id, ...docSnap.data() } as ChatRoom;
+  } else {
+    return null;
+  }
+};
+
 export const sendMessage = async (chatRoomId: string, message: string, sender: string): Promise<void> => {
   const messagesRef = collection(firestore, `chatrooms/${chatRoomId}/messages`);
   const newMessage: Message = {
