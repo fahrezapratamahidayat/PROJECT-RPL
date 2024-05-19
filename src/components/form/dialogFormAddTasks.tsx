@@ -95,9 +95,11 @@ export default function DialogFormAddTasks({
       attachments: data.attachments,
     };
 
-    const isLeader = teams?.some((team) => team.leader === session?.user?.id);
+    const isLeader = teams?.some(
+      (team) => team.leader === session?.user?.email
+    );
 
-    if (!isLeader) {
+    if (!isLeader && data.typeTask === "teams") {
       toast({
         title: "Failed",
         description: "Only the team leader can add tasks",
@@ -383,9 +385,9 @@ export default function DialogFormAddTasks({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="tinggi">Tinggi</SelectItem>
-                            <SelectItem value="sedang">Sedang</SelectItem>
-                            <SelectItem value="kecil">Kecil</SelectItem>
+                            <SelectItem value="High">High</SelectItem>
+                            <SelectItem value="Medium">Medium</SelectItem>
+                            <SelectItem value="Low">Low</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
