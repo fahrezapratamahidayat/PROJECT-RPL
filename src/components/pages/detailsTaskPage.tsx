@@ -19,12 +19,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, CircularProgressProps } from "@mui/material";
 import DialogFormEditSubTask from "../form/dialogFormEditSubTask";
 import AlertDeleteTask from "../alert/alertdelete";
 import axios from "axios";
 import { useToast } from "../ui/use-toast";
-import { ScrollArea } from "../ui/scroll-area";
 
 export default function DetailsTaskPage({
   params,
@@ -52,7 +51,11 @@ export default function DetailsTaskPage({
   }, [fetchTasks, fetchTasksTeams]);
 
   useEffect(() => {
-    if (filteredTask && filteredTask.modules) {
+    if (
+      filteredTask &&
+      filteredTask.modules &&
+      filteredTask.statusTask === "on going"
+    ) {
       const totalMilestones = filteredTask.modules.length;
       const completedMilestones = filteredTask.modules.filter(
         (m) => m.status === "Completed"
@@ -107,6 +110,18 @@ export default function DetailsTaskPage({
       }
     }
   };
+
+  function determineColor(progress: number): CircularProgressProps["color"] {
+    if (progress < 25) {
+      return "error";
+    } else if (progress < 50) {
+      return "warning";
+    } else if (progress < 75) {
+      return "info";
+    } else {
+      return "success";
+    }
+  }
   return (
     <>
       <AlertDeleteTask
@@ -143,10 +158,6 @@ export default function DetailsTaskPage({
                 <h1 className="font-bold text-base">Description</h1>
                 <p className="text-sm font-medium text-muted-foreground text-justify">
                   {filteredTask?.description ?? "Description not available"}
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. At
-                  perferendis maiores, numquam culpa tempora dolorum delectus ea
-                  nobis eius laborum, nisi quam sapiente. Modi, eveniet. Minima
-                  assumenda iste ratione. Officia.
                 </p>
               </div>
             </div>
@@ -155,6 +166,7 @@ export default function DetailsTaskPage({
                 variant="determinate"
                 value={progress}
                 size={100}
+                color={determineColor(progress)}
               />
               <div className="absolute top-10 left-1/2 -translate-x-1/2  flex items-center justify-center">
                 <span className="text-sm font-medium text-white text-center">
@@ -165,7 +177,7 @@ export default function DetailsTaskPage({
           </div>
           <Separator className="border" />
           <div className="flex-flex-col">
-            <div className="flex items-center gap-3">
+            <div className="flex lg:items-center gap-3">
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -176,29 +188,31 @@ export default function DetailsTaskPage({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <span className="text-sm text-muted-foreground">
-                {filteredTask?.dueDate
-                  ? format(
-                      new Date(filteredTask.dueDate),
-                      "dd MMMM yyyy HH:mm:ss a",
-                      { locale: id }
-                    )
-                  : "No due date"}
-              </span>
-              <Separator className="border w-2 px-1 mx-2" />
-              <span className="text-sm text-muted-foreground">
-                {filteredTask?.dueTime
-                  ? format(
-                      new Date(filteredTask.dueTime),
-                      "dd MMMM yyyy HH:mm:ss a",
-                      { locale: id }
-                    )
-                  : "No due date"}
-              </span>
+              <div className="flex items-center">
+                <span className="text-sm text-muted-foreground">
+                  {filteredTask?.dueDate
+                    ? format(
+                        new Date(filteredTask.dueDate),
+                        "dd MMMM yyyy HH:mm:ss a",
+                        { locale: id }
+                      )
+                    : "No due date"}
+                </span>
+                <Separator className=" w-2 px-1 mx-2 border" />
+                <span className="text-sm text-muted-foreground">
+                  {filteredTask?.dueTime
+                    ? format(
+                        new Date(filteredTask.dueTime),
+                        "dd MMMM yyyy HH:mm:ss a",
+                        { locale: id }
+                      )
+                    : "No due date"}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex-flex-col">
-            <div className="flex lg:gap-3 md:gap-3 sm:gap-3 items-center sm:justify-start md:justify-start lg:justify-start">
+            <div className="flex lg:gap-3 lg:flex-row md:flex-row sm:flex-row flex-col  md:gap-3 sm:gap-3 lg:items-center md:items-center sm:items-center sm:justify-start md:justify-start lg:justify-start">
               <div className="flex items-center gap-3">
                 <h1 className="text-base font-medium">Priority</h1>
                 <span
@@ -214,7 +228,6 @@ export default function DetailsTaskPage({
                 </span>
               </div>
               <div className="flex-grow lg:grow-0 md:grow-0 sm:grow-0"></div>{" "}
-              {/* Menambahkan elemen ini untuk mendorong elemen status ke kanan */}
               <div className="flex items-center gap-3 mr-3">
                 <h1 className="text-base font-medium">Status</h1>
                 <span className="text-sm text-muted-foreground">
@@ -290,7 +303,23 @@ export default function DetailsTaskPage({
             <DialogFormAddSubTask
               isOpen={modalOpen}
               setIsOpen={() => {
-                if (filteredTask?.createdBy === session?.user?.id) {
+                const isOverdue = filteredTask?.dueTime
+                  ? new Date() > new Date(filteredTask.dueTime)
+                  : false;
+                if (filteredTask?.statusTask === "completed") {
+                  toast({
+                    description:
+                      "Status Task Completed, please change status before adding sub task",
+                    variant: "destructive",
+                  });
+                  setModalOpen(false);
+                } else if (isOverdue) {
+                  toast({
+                    description:
+                      "Task overdue, please change status before adding sub task",
+                    variant: "destructive",
+                  });
+                } else if (filteredTask?.createdBy === session?.user?.id) {
                   setModalOpen(!modalOpen);
                 } else {
                   toast({
