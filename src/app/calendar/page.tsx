@@ -8,13 +8,8 @@ import Sidebar from "@/components/navigation/sidebar";
 import { useTasks } from "@/hooks/useTaskManager";
 
 export default function CalendarPage() {
-  const {
-    isLoading,
-    tasksList,
-    tasksTeam,
-    fetchTasks,
-    fetchTasksTeams,
-  } = useTasks();
+  const { isLoading, tasksList, tasksTeam, fetchTasks, fetchTasksTeams } =
+    useTasks();
 
   useEffect(() => {
     fetchTasks();
@@ -40,15 +35,13 @@ export default function CalendarPage() {
     modules: task.modules,
   }));
 
-  useEffect(() => {}, [taskEvents, tasksList,tasksTeam]);
+  useEffect(() => {}, [taskEvents, tasksList, tasksTeam]);
   return (
     <div className="flex min-h-screen w-full flex-col ">
       <Sidebar />
-      <div className="flex flex-col lg:pl-[14rem]">
+      <div className="flex flex-col lg:pl-[14rem] w-full">
         <Navbar />
-        <div className="">
-          <CalendarEvent events={taskEvents} />
-        </div>
+        <CalendarEvent events={taskEvents} />
       </div>
     </div>
   );
