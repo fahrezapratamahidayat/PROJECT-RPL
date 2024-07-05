@@ -44,14 +44,12 @@ export default function CardTasksTeams() {
       setActiveStatus("");
     }
   };
-
   const filteredTasks = tasksTeam.filter((task) => {
-    const statusMatch = task.statusTask === activeStatus || activeStatus === "";
+    const statusMatch = activeStatus === "" || task.statusTask === activeStatus;
     const priorityMatch =
-      task.priority === activePriority || activePriority === "";
-    return statusMatch && priorityMatch && task.assigned.length === 0;
+      activePriority === "" || task.priority === activePriority;
+    return statusMatch && priorityMatch;
   });
-
   return (
     <>
       <AlertDeleteTask
@@ -87,7 +85,7 @@ export default function CardTasksTeams() {
               Task Priorities
             </span>
             <span className="text-sm text-muted-foreground">
-              Teams Task Sorted by {" "}
+              Teams Task Sorted by{" "}
               {activePriority === ""
                 ? activeStatus
                 : activePriority
@@ -199,8 +197,8 @@ export default function CardTasksTeams() {
               <Loader2 className="animate-spin" />
               <span>Loading...</span>
             </div>
-          ) : filteredTasks.length > 0 ? (
-            filteredTasks.map((task: TasksData) => {
+          ) : tasksTeam.length > 0 ? (
+            tasksTeam.map((task: TasksData) => {
               const formattedDeadline = formatDateString(
                 task.dueTime,
                 "dd MMMM yyyy HH:mm:ss"
