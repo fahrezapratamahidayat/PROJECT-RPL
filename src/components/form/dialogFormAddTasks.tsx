@@ -80,7 +80,7 @@ export default function DialogFormAddTasks({
   const { toast } = useToast();
 
   const typeTask = form.watch("typeTask");
-  const teams = useTeamsData(session?.user?.email, typeTask);
+  const teams = useTeamsData(session?.user?.id, typeTask);
   async function onSubmit(data: Inputs) {
     const taskData: addTask = {
       title: data.title,
@@ -199,6 +199,7 @@ export default function DialogFormAddTasks({
     label: team.name,
     value: team.members.join(", "),
   }));
+  console.log(teamsOptions);
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
